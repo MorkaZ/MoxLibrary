@@ -249,7 +249,7 @@ public class QueryUtils {
 			String query;
 			query = "INSERT INTO `"+table+"` "
 					+ "(`"+keyColumn+"`, `"+setColumn+"`) "
-					+ "VALUES ("+keyValueTrans+", "+setValue+") ";
+						+ "VALUES ("+keyValueTrans+", "+setValue+") ";
 			if (hasTableUniqueKey) {
 				query = query
 						+ "ON DUPLICATE KEY UPDATE "
