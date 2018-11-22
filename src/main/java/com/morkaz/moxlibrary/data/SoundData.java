@@ -40,4 +40,5 @@ public class SoundData {
 	public void setVoulme(Float voulme) {
 		this.voulme = voulme;
 	}
+	
 }
