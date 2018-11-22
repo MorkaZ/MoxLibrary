@@ -44,7 +44,7 @@ public class SimpleUnixPurger {
 		this.objectMap.keySet().removeAll(objects);
 	}
 
-	public Map<Object, Long> getOutdatedObjects(Long minDate){
+	public Map<Object, Long> getToPurgeObjects(Long minDate){
 		Map<Object, Long> objectMap2 = new HashMap<>();
 		for (Map.Entry<Object, Long> entry : objectMap.entrySet()){
 			Object objectKey = entry.getKey();
@@ -59,7 +59,8 @@ public class SimpleUnixPurger {
 
 	public Map<Object, Long> getNotToPurgeObjects(Long minDate){
 		Map<Object, Long> notToPurgeMap = new HashMap<>(objectMap);
-		notToPurgeMap.keySet().removeAll(this.getOutdatedObjects(minDate).keySet());
+		notToPurgeMap.keySet().removeAll(this.getToPurgeObjects(minDate).keySet());
 		return notToPurgeMap;
 	}
+
 }
