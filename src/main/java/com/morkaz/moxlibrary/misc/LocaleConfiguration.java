@@ -14,13 +14,14 @@ public class LocaleConfiguration extends SimpleConfiguration {
 
 	private File messagesFile;
 	private Plugin plugin;
-	private String defaultLocale;
+	private String defaultLocale, configLocaleLocation;
 	private YamlConfiguration messagesConfig;
 
-	public LocaleConfiguration(Plugin plugin, String defaultLocaleShort) {
+	public LocaleConfiguration(Plugin plugin, String defaultLocaleShort, String configLocaleLocation) {
 		super(plugin);
 		this.plugin = plugin;
 		this.defaultLocale = defaultLocaleShort;
+		this.configLocaleLocation = configLocaleLocation;
 		this.reloadMessagesOnly();
 	}
 
@@ -41,8 +42,8 @@ public class LocaleConfiguration extends SimpleConfiguration {
 
 	private void processMessagesFile() {
 		String filename = "messages-"+defaultLocale+".yml";
-		if (plugin.getResource("messages-"+getConfig().getString("locale").toLowerCase()+".yml") != null) {
-			filename = "messages-"+getConfig().getString("locale").toLowerCase()+".yml";
+		if (plugin.getResource("messages-"+getConfig().getString(configLocaleLocation).toLowerCase()+".yml") != null) {
+			filename = "messages-"+getConfig().getString(configLocaleLocation).toLowerCase()+".yml";
 			messagesFile = new File(plugin.getDataFolder(), filename);
 			if (!messagesFile.exists()) {
 				messagesFile.getParentFile().mkdirs();
@@ -50,7 +51,7 @@ public class LocaleConfiguration extends SimpleConfiguration {
 			}
 		} else {
 			InputStream inputStream = plugin.getResource(filename);
-			messagesFile = new File(plugin.getDataFolder(), "messages-"+getConfig().getString("locale").toLowerCase()+".yml");
+			messagesFile = new File(plugin.getDataFolder(), "messages-"+getConfig().getString(configLocaleLocation).toLowerCase()+".yml");
 			if (!messagesFile.exists()) {
 				messagesFile.getParentFile().mkdirs();
 				try {
