@@ -1,8 +1,9 @@
-package com.morkaz.moxlibrary.misc;
+package com.morkaz.moxlibrary.misc.configuration;
 
 import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 
@@ -23,6 +24,10 @@ public class LocaleConfiguration extends SimpleConfiguration {
 		this.defaultLocale = defaultLocaleShort;
 		this.configLocaleLocation = configLocaleLocation;
 		this.reloadMessagesOnly();
+	}
+
+	public FileConfiguration getMessagesConfig(){
+		return this.messagesConfig;
 	}
 
 	public void reloadConfigOnly(){

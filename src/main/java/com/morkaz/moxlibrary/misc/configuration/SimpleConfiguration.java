@@ -1,4 +1,4 @@
-package com.morkaz.moxlibrary.misc;
+package com.morkaz.moxlibrary.misc.configuration;
 
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;

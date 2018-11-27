@@ -1,5 +1,6 @@
 package com.morkaz.moxlibrary.api;
 
+import com.morkaz.moxlibrary.data.CommandData;
 import net.minecraft.server.v1_13_R2.*;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.bukkit.Bukkit;
@@ -43,6 +44,18 @@ public class ServerUtils {
 			}
 		}
 		return cmd;
+	}
+
+	public static PluginCommand registerCommand(Plugin plugin, String name, List<String> aliases, String description, String usage, CommandExecutor commandExecutor){
+		final PluginCommand cmd = registerCommand(plugin, name, aliases, description, usage);
+		if (commandExecutor != null){
+			cmd.setExecutor(commandExecutor);
+		}
+		return cmd;
+	}
+
+	public static PluginCommand registerCommand(CommandData commandData){
+		return registerCommand(commandData.getPlugin(), commandData.getMainCommand(), commandData.getAliases(), commandData.getDescription(), commandData.getUsage(), commandData.getCommandExecutor());
 	}
 
 	public static String constructExceptionCause(Plugin plugin, String cause){
