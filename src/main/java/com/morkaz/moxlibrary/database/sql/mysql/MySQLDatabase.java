@@ -45,7 +45,7 @@ public class MySQLDatabase extends SQLScheduler implements SQLDatabase {
 
 				} catch (SQLException e) {
 					e.printStackTrace();
-					Bukkit.getConsoleSender().sendMessage("[MoxCore] SQL query error: "+e.getSQLState()+" ---- "+e.getCause()
+					Bukkit.getConsoleSender().sendMessage("[MoxLibrary] SQL query error: "+e.getSQLState()+" ---- "+e.getCause()
 							+" ---- "+e.getMessage()+" ---- "+e.getErrorCode()+" ---- USED QUERY:"+query);
 				}
 			}
@@ -64,7 +64,7 @@ public class MySQLDatabase extends SQLScheduler implements SQLDatabase {
 			return true;
 		} catch (SQLException e) {
 			e.printStackTrace();
-			Bukkit.getConsoleSender().sendMessage("[MoxCore] SQL query error: "+e.getSQLState()+" ---- "+e.getCause()
+			Bukkit.getConsoleSender().sendMessage("[MoxLibrary] SQL query error: "+e.getSQLState()+" ---- "+e.getCause()
 					+" ---- "+e.getMessage()+" ---- "+e.getErrorCode()+" ---- USED QUERY:"+query);
 		}
 		return false;
@@ -82,7 +82,7 @@ public class MySQLDatabase extends SQLScheduler implements SQLDatabase {
 			set = statement.executeQuery(query);
 		} catch (SQLException e) {
 			e.printStackTrace();
-			Bukkit.getConsoleSender().sendMessage("[MoxCore] MySQL get data from query error: "+e.getErrorCode());
+			Bukkit.getConsoleSender().sendMessage("[MoxLibrary] MySQL get data from query error: "+e.getErrorCode());
 		}
 		try {
 			if (set != null) {

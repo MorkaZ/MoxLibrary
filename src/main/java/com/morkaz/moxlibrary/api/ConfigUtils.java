@@ -34,8 +34,8 @@ public class ConfigUtils {
 	 * 	sourceConfig.load(new InputStreamReader(input));}
 	 *
 	 * 	And then you can check for missing values like this:
-	 * 	{@code ConfigStuff api = MoxCore.getConfigUtils();
-	 *   api.missingValuesSet(sourceConfig, plugin.getConfig(), new File(main.getDataFolder(), "config.yml"));
+	 * 	{@code
+	 *   ConfigUtils.missingValuesSet(sourceConfig, plugin.getConfig(), new File(main.getDataFolder(), "config.yml")); 
 	 *   plugin.reloadConfig();}
 	 *
 	 * @param sourceConfiguration FileConfiguration read from your .jar that is having actual keys with defaults.
@@ -83,10 +83,10 @@ public class ConfigUtils {
 				return null;
 			}
 		} catch (Exception e){
-			Bukkit.getLogger().info("[MoxCore] Plugin: \""+plugin.getName()+"\" caused an exception while loading SoundData. Details are below.");
+			Bukkit.getLogger().info("[MoxLibrary] Plugin: \""+plugin.getName()+"\" caused an exception while loading SoundData. Details are below.");
 			e.printStackTrace();
 		}
-		Bukkit.getLogger().info("[MoxCore] Sound named \""+soundName+"\" has been not found! Caused by: \""+plugin.getName()+"\". (Configuration selection: \""+contentPrefix+"\")");
+		Bukkit.getLogger().info("[MoxLibrary] Sound named \""+soundName+"\" has been not found! Caused by: \""+plugin.getName()+"\". (Configuration selection: \""+contentPrefix+"\")");
 		return null;
 	}
 
@@ -122,7 +122,7 @@ public class ConfigUtils {
 			}
 			if (material == null){
 				Bukkit.getLogger().info(ServerUtils.constructExceptionCause(plugin,
-						"[MoxCore] Given material name: "+materialTxt.toUpperCase()+" is undefined in Bukkit enums.\n" +
+						"[MoxLibrary] Given material name: "+materialTxt.toUpperCase()+" is undefined in Bukkit enums.\n" +
 								"Problem found in config section \""+contentPrefix+"\"."));
 				return null;
 			}
@@ -130,7 +130,7 @@ public class ConfigUtils {
 //		} else if (id != null){
 //			itemStack = itemUtils.createItemStack(id, amount, data, itemName, itemLore, glow);
 		} else {
-				Bukkit.getLogger().info("[MoxCore] There is no required material or ID data to load and create item stack. " +
+				Bukkit.getLogger().info("[MoxLibrary] There is no required material or ID data to load and create item stack. " +
 						"Caused by: "+plugin.getName()+". ");
 			return null;
 		}
@@ -171,7 +171,7 @@ public class ConfigUtils {
 		for (String stringEnchant : enchantList) {
 			String[] splitEnchant = stringEnchant.split(" ");
 			if (splitEnchant.length != 2) {
-				Bukkit.getLogger().warning("[MoxCore] Error while loading enchantment at "+stringEnchant+". " +
+				Bukkit.getLogger().warning("[MoxLibrary] Error while loading enchantment at "+stringEnchant+". " +
 							"There is no space, no enchant number or more/less than 2 values (enchantment <number>). " +
 							"Caused by plugin: "+plugin.getName()+". ");
 				continue;
@@ -179,14 +179,14 @@ public class ConfigUtils {
 			Integer enchantLevel = Integer.valueOf(splitEnchant[1]);
 			String enchantName = splitEnchant[0].toUpperCase();
 			if (enchantLevel == null || enchantLevel <= 0) {
-				Bukkit.getLogger().warning("[MoxCore] Error while loading enchantment "+stringEnchant+". " +
+				Bukkit.getLogger().warning("[MoxLibrary] Error while loading enchantment "+stringEnchant+". " +
 							"There is problem with loading enchantment level of "+enchantName+". " +
 							"Caused by plugin: "+plugin.getName()+". ");
 				continue;
 			}
 			Enchantment enchant = Enchantment.getByName(enchantName);
 			if (enchant == null) {
-				Bukkit.getLogger().warning("[MoxCore] Error while loading enchantment "+stringEnchant +". " +
+				Bukkit.getLogger().warning("[MoxLibrary] Error while loading enchantment "+stringEnchant +". " +
 							"Enchant name not found! ("+enchantName+"). " +
 							"Please use bukkit enum names! Google: Enchantments bukkit. " +
 							"Caused by plugin: "+plugin.getName()+". ");

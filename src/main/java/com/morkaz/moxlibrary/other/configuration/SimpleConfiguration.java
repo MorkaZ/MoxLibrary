@@ -1,4 +1,4 @@
-package com.morkaz.moxlibrary.misc.configuration;
+package com.morkaz.moxlibrary.other.configuration;
 
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -18,7 +18,7 @@ public class SimpleConfiguration {
 	public SimpleConfiguration(Plugin plugin) {
 		this.plugin = plugin;
 		sourceConfig = new YamlConfiguration();
-		this.reloadConfiguration();
+		this.processConfigFile();
 		try {
 			sourceConfig.load(new InputStreamReader(plugin.getResource("config.yml")));
 		} catch (IOException e) {

@@ -39,7 +39,7 @@ public class SQLiteDatabase extends SQLScheduler implements SQLDatabase {
 					statement.executeUpdate(query);
 				} catch (SQLException e) {
 					e.printStackTrace();
-					Bukkit.getConsoleSender().sendMessage("[MoxCore] SQL query error: "+e.getSQLState()+" ---- "+e.getCause()
+					Bukkit.getConsoleSender().sendMessage("[MoxLibrary] SQL query error: "+e.getSQLState()+" ---- "+e.getCause()
 							+" ---- "+e.getMessage()+" ---- "+e.getErrorCode()+" ---- USED QUERY:"+query);
 				}
 			}
@@ -54,7 +54,7 @@ public class SQLiteDatabase extends SQLScheduler implements SQLDatabase {
 			return true;
 		} catch (SQLException e) {
 			e.printStackTrace();
-			Bukkit.getConsoleSender().sendMessage("[MoxCore] SQL query error: "+e.getSQLState()+" ---- "+e.getCause()
+			Bukkit.getConsoleSender().sendMessage("[MoxLibrary] SQL query error: "+e.getSQLState()+" ---- "+e.getCause()
 					+" ---- "+e.getMessage()+" ---- "+e.getErrorCode()+" ---- USED QUERY: "+query);
 		}
 		return false;
@@ -69,7 +69,7 @@ public class SQLiteDatabase extends SQLScheduler implements SQLDatabase {
 			set = statement.executeQuery(query);
 		} catch (SQLException e) {
 			e.printStackTrace();
-			Bukkit.getConsoleSender().sendMessage("[MoxCore] SQL get data from query error: ["+e.getErrorCode()+"] "+e.getMessage()+"\n" +
+			Bukkit.getConsoleSender().sendMessage("[MoxLibrary] SQL get data from query error: ["+e.getErrorCode()+"] "+e.getMessage()+"\n" +
 					"Used query: "+query);
 		}
 		return set;
@@ -89,10 +89,10 @@ public class SQLiteDatabase extends SQLScheduler implements SQLDatabase {
 			Class.forName("org.sqlite.JDBC");
 			connection = DriverManager.getConnection(url);
 			if (connection == null) {
-				Bukkit.getLogger().info("[MoxCore] Creating SQLite connection to file failed. " +
+				Bukkit.getLogger().info("[MoxLibrary] Creating SQLite connection to file failed. " +
 						"Check if given location is correct and required access is given: "+fileLocation+"");
 			}
-			Bukkit.getLogger().info("[MoxCore] URL ("+url+") Succesfully connected! Driver version: "+connection.getMetaData().getDriverVersion());
+			Bukkit.getLogger().info("[MoxLibrary] URL ("+url+") Succesfully connected! Driver version: "+connection.getMetaData().getDriverVersion());
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		} catch (SQLException e) {

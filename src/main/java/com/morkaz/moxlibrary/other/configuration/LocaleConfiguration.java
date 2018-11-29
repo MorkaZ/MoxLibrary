@@ -1,4 +1,4 @@
-package com.morkaz.moxlibrary.misc.configuration;
+package com.morkaz.moxlibrary.other.configuration;
 
 import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
@@ -38,25 +38,27 @@ public class LocaleConfiguration extends SimpleConfiguration {
 		this.processMessagesFile();
 	}
 
-	@Override
 	public void reloadConfiguration(){
 		super.reloadConfiguration();
 		this.processMessagesFile();
 	}
 
-
 	private void processMessagesFile() {
-		String filename = "messages-"+defaultLocale+".yml";
-		if (plugin.getResource("messages-"+getConfig().getString(configLocaleLocation).toLowerCase()+".yml") != null) {
-			filename = "messages-"+getConfig().getString(configLocaleLocation).toLowerCase()+".yml";
-			messagesFile = new File(plugin.getDataFolder(), filename);
+		String fileName = "messages-"+this.defaultLocale+".yml";
+		String locale = (getConfig().getString(this.configLocaleLocation)+"").toLowerCase();
+		if (locale.equals("") || locale.equals("null")){
+			locale = this.defaultLocale;
+		}
+		if (plugin.getResource("messages-"+locale+".yml") != null) {
+			fileName = "messages-"+locale+".yml";
+			messagesFile = new File(plugin.getDataFolder(), fileName);
 			if (!messagesFile.exists()) {
 				messagesFile.getParentFile().mkdirs();
-				plugin.saveResource(filename, false);
+				plugin.saveResource(fileName, false);
 			}
 		} else {
-			InputStream inputStream = plugin.getResource(filename);
-			messagesFile = new File(plugin.getDataFolder(), "messages-"+getConfig().getString(configLocaleLocation).toLowerCase()+".yml");
+			InputStream inputStream = plugin.getResource(fileName);
+			messagesFile = new File(plugin.getDataFolder(), "messages-"+locale+".yml");
 			if (!messagesFile.exists()) {
 				messagesFile.getParentFile().mkdirs();
 				try {
@@ -68,9 +70,9 @@ public class LocaleConfiguration extends SimpleConfiguration {
 				} catch (IOException e) {
 					e.printStackTrace();
 					Bukkit.getLogger().warning("["+plugin.getDescription().getName()+"] " +
-							"Error happened when trying to create new messages file! Default messages-"+defaultLocale+".yml has been saved! Error stacktrace above!");
+							"Error happened when trying to create new messages file! Default messages-"+this.defaultLocale+".yml has been saved! Error stacktrace above!");
 					messagesFile.getParentFile().mkdirs();
-					plugin.saveResource(filename, false);
+					plugin.saveResource(fileName, false);
 				}
 			}
 		}
