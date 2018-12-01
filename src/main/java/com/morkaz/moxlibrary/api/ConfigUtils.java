@@ -61,7 +61,7 @@ public class ConfigUtils {
 					targetConfiguration.save(targetFile);
 				} catch (IOException e) {
 					e.printStackTrace();
-					Bukkit.getLogger().warning("[Mox1v1] Can not update values in configuration file: "+targetFile.getAbsolutePath());
+					Bukkit.getLogger().warning("[MoxLibrary] Can not update values in configuration file: "+targetFile.getAbsolutePath());
 				}
 			}
 		}
@@ -70,11 +70,12 @@ public class ConfigUtils {
 
 	public static FileConfiguration loadFileConfiguration(Plugin plugin, String configFileName, Boolean setMissingKeysWithDefaultValues){
 		FileConfiguration config = new YamlConfiguration();
-		File configFile = new File(plugin.getDataFolder(), configFileName+(configFileName.contains(".yml") ? "" : ".yml"));
+		String fileName = configFileName+(configFileName.contains(".yml") ? "" : ".yml");
+		File configFile = new File(plugin.getDataFolder(), fileName);
 		Boolean bool = false;
 		if (!configFile.exists()) {
 			configFile.getParentFile().mkdirs();
-			plugin.saveResource("promotion.yml", false);
+			plugin.saveResource(fileName, false);
 			bool = true;
 		}
 		try {
