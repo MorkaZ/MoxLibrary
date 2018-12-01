@@ -9,7 +9,12 @@ public abstract class ActionItem {
 	private Integer slot;
 
 	public ActionItem(Integer x, Integer y, ItemStack itemStack){
-		this.slot = x*y;
+		this.slot = ((y-1)*9) + (x-1);
+		this.itemStack = itemStack;
+	}
+
+	public ActionItem(Integer slot, ItemStack itemStack){
+		this.slot = slot;
 		this.itemStack = itemStack;
 	}
 
@@ -19,6 +24,14 @@ public abstract class ActionItem {
 
 	public Integer getSlot() {
 		return slot;
+	}
+
+	public Integer getX(){
+		return this.slot % 9;
+	}
+
+	public Integer getY(){
+		return (slot/9) - getX();
 	}
 
 	public abstract void onClick(InventoryClickEvent event);

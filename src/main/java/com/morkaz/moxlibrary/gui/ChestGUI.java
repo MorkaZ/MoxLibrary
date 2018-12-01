@@ -2,6 +2,7 @@ package com.morkaz.moxlibrary.gui;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -10,6 +11,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
 import java.util.HashMap;
@@ -78,8 +80,14 @@ public class ChestGUI {
 		return this.inventory.getViewers();
 	}
 
-	public void setItem(ActionItem actionItem){
+	public void addItem(ActionItem actionItem){
 		this.actionItemMap.put(actionItem.getSlot(), actionItem);
+		this.inventory.setItem(actionItem.getSlot(), actionItem.getItemStack());
+	}
+
+	public void removeItem(ActionItem actionItem){
+		this.actionItemMap.remove(actionItem.getSlot());
+		this.inventory.setItem(actionItem.getSlot(), new ItemStack(Material.AIR));
 	}
 
 	public void unregisterGUI(){
@@ -100,9 +108,12 @@ class GUIListener implements Listener {
 
 	@EventHandler(priority= EventPriority.HIGHEST)
 	public void inventoryClickListener(InventoryClickEvent event){
-		ChestGUI chestGUI = ChestGUI.chestGUIMap.get(event.getInventory());
+		ChestGUI chestGUI = ChestGUI.chestGUIMap.get(event.getClickedInventory());
 		if (chestGUI != null){
-			chestGUI.actionItemMap.get(event.getSlot()).onClick(event);
+			ActionItem actionItem = chestGUI.actionItemMap.get(event.getSlot());
+			if (actionItem != null){
+				actionItem.onClick(event);
+			}
 		}
 	}
 
@@ -110,7 +121,7 @@ class GUIListener implements Listener {
 	public void inventoryCloseListener(InventoryCloseEvent event){
 		ChestGUI chestGUI = ChestGUI.chestGUIMap.get(event.getInventory());
 		if (chestGUI != null){
-			if (chestGUI.getUnregisterOnClose()){ // && chestGUI.getViewers().size() == 0
+			if (chestGUI.getUnregisterOnClose() && chestGUI.getViewers().size() == 1){
 				ChestGUI.chestGUIMap.remove(event.getInventory());
 			}
 		}

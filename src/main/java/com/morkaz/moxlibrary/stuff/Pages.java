@@ -7,7 +7,7 @@ public class Pages<T> {
 
 	private Collection<T> objectCollection;
 	private Integer objectsPerPage = 20;
-	private Map<Integer, Collection<T>> pagesList = new HashMap<>();
+	private Map<Integer, Collection<T>> pagesMap = new LinkedHashMap<>();
 
 
 	public Pages(Collection<T> objectCollection, Integer objectsPerPage) {
@@ -24,15 +24,15 @@ public class Pages<T> {
 
 	@Nullable
 	public Collection<T> getObjects(Integer pageNumber){
-		return pagesList.get(pageNumber);
+		return pagesMap.get(pageNumber);
 	}
 
-	public Integer getMaxPageNumber(){
-		return pagesList.size();
+	public Integer getLastPageNumber(){
+		return pagesMap.size();
 	}
 
 	private void mapPages(){
-		pagesList.clear();
+		pagesMap.clear();
 		Integer counter = 0;
 		Integer actualPage = 1;
 		List<T> pageObjects = new ArrayList<>();
@@ -41,11 +41,14 @@ public class Pages<T> {
 			if (counter < objectsPerPage){
 				pageObjects.add(object);
 			} else {
-				pagesList.put(actualPage, new ArrayList(pageObjects));
+				pagesMap.put(actualPage, new ArrayList(pageObjects));
 				pageObjects.clear();
 				counter = 0;
-				actualPage = 1;
+				actualPage =+ actualPage;
 			}
+		}
+		if (pageObjects.size() > 0){
+			pagesMap.put(actualPage, new ArrayList(pageObjects));
 		}
 	}
 
