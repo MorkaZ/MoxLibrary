@@ -36,7 +36,7 @@ public class LocaleConfiguration extends SimpleConfiguration {
 			e.printStackTrace();
 		}
 		//Load messages and check for missing indexes
-		this.reloadMessagesOnly();
+		this.reloadMessagesConfig();
 
 	}
 
@@ -44,16 +44,12 @@ public class LocaleConfiguration extends SimpleConfiguration {
 		return this.messagesConfig;
 	}
 
-	public void reloadConfigOnly(){
-		super.reloadConfiguration();
-	}
-
-	public void reloadMessagesOnly(){
+	public void reloadMessagesConfig(){
 		this.processMessagesFile();
 	}
 
 	public void reloadConfiguration(){
-		super.reloadConfiguration();
+		super.reloadConfig();
 		this.processMessagesFile();
 	}
 

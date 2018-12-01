@@ -5,7 +5,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.craftbukkit.libs.jline.internal.Nullable;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
@@ -14,6 +16,7 @@ import org.bukkit.potion.PotionEffectType;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -63,6 +66,40 @@ public class ConfigUtils {
 			}
 		}
 		return targetConfiguration;
+	}
+
+	public static FileConfiguration loadFileConfiguration(Plugin plugin, String configFileName, Boolean setMissingKeysWithDefaultValues){
+		FileConfiguration config = new YamlConfiguration();
+		File configFile = new File(plugin.getDataFolder(), configFileName+(configFileName.contains(".yml") ? "" : ".yml"));
+		Boolean bool = false;
+		if (!configFile.exists()) {
+			configFile.getParentFile().mkdirs();
+			plugin.saveResource("promotion.yml", false);
+			bool = true;
+		}
+		try {
+			config.load(configFile);
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (InvalidConfigurationException e) {
+			e.printStackTrace();
+		}
+		if (setMissingKeysWithDefaultValues){
+			setMissingValues(loadSourceConfiguration(plugin, configFileName), config, configFile);
+		}
+		return config;
+	}
+
+	public static FileConfiguration loadSourceConfiguration(Plugin plugin, String configFileName){
+		FileConfiguration sourceConfig = new YamlConfiguration();
+		try {
+			sourceConfig.load(new InputStreamReader(plugin.getResource(configFileName+(configFileName.contains(".yml") ? "" : ".yml"))));
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (InvalidConfigurationException e) {
+			e.printStackTrace();
+		}
+		return sourceConfig;
 	}
 
 	@Nullable

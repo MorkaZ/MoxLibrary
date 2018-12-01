@@ -19,7 +19,6 @@ public class SimpleConfiguration {
 	public SimpleConfiguration(Plugin plugin) {
 		this.plugin = plugin;
 		sourceConfig = new YamlConfiguration();
-		this.processConfigFile();
 		try {
 			sourceConfig.load(new InputStreamReader(plugin.getResource("config.yml")));
 		} catch (IOException e) {
@@ -27,9 +26,10 @@ public class SimpleConfiguration {
 		} catch (InvalidConfigurationException e) {
 			e.printStackTrace();
 		}
+		this.reloadConfig();
 	}
 
-	public void reloadConfiguration(){
+	public void reloadConfig(){
 		this.processConfigFile();
 	}
 
