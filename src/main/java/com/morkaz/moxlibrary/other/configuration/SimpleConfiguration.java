@@ -1,5 +1,6 @@
 package com.morkaz.moxlibrary.other.configuration;
 
+import com.morkaz.moxlibrary.api.ConfigUtils;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -43,6 +44,7 @@ public class SimpleConfiguration {
 			plugin.saveResource("config.yml", false);
 		}
 		plugin.reloadConfig();
+		ConfigUtils.setMissingValues(sourceConfig, plugin.getConfig(), configFile);
 	}
 
 }
