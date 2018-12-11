@@ -2,18 +2,18 @@ package com.morkaz.moxlibrary.other.moxdata;
 
 public enum Separator {
 
-	PAIR("‗"),
-	CHAIN("…"),
-	MAIN_KEY("‖");
+	PAIR("%=%"),
+	CHAIN("%.%"),
+	MAIN_KEY("%:%");
 
-	String symbol;
+	String separator;
 
-	private Separator(String symbol){
-		this.symbol = symbol;
+	private Separator(String separator){
+		this.separator = separator;
 	}
 
 	@Override
 	public String toString() {
-		return symbol;
+		return separator;
 	}
 }
