@@ -21,6 +21,22 @@ import java.util.List;
 
 public class ServerUtils {
 
+	public static String getPlayerID(Player player){
+		return Bukkit.getOnlineMode() ? player.getUniqueId().toString() : player.getName().toLowerCase();
+	}
+
+	public static String getPlayerID(String playerName){
+		if (Bukkit.getOnlineMode()){
+			Player player = Bukkit.getPlayerExact(playerName);
+			if (player != null){
+				return Bukkit.getPlayerExact(playerName).getUniqueId().toString();
+			} else {
+				return Bukkit.getOfflinePlayer(playerName).getUniqueId().toString();
+			}
+		} else {
+			return playerName.toLowerCase();
+		}
+	}
 
 	public static String dateFormatFromUnix(Long unixTime, String dateFormat){
 		if (dateFormat == null){

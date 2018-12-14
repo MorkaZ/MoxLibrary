@@ -37,6 +37,10 @@ public class MoxChain {
 		return this.pairMap.get(key);
 	}
 
+	public Collection<MoxPair> getPairs(){
+		return this.pairMap.values();
+	}
+
 	public void addPair(MoxPair pair){
 		if (pair == null){
 			return;

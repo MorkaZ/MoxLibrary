@@ -1,6 +1,9 @@
 package com.morkaz.moxlibrary.other.moxdata;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 public class MoxData {
 
@@ -33,6 +36,9 @@ public class MoxData {
 	}
 
 	public MoxChain getChain(){
+		if (chain == null){
+			this.initializeEmptyChain();
+		}
 		return this.chain;
 	}
 
@@ -60,6 +66,22 @@ public class MoxData {
 			pair.setValue(value);
 		}
 		return true;
+	}
+
+	public Collection<MoxPair> getPairs(Collection<String> keys){
+		// Optimalized filtring (without looping through all values) but by using more memory.
+		List<MoxPair> toRemoveList = new ArrayList(getPairs());
+		toRemoveList.removeAll(keys); // Now we have all values that we DO NOT WANT in one list.
+		List<MoxPair> requestedPairs = new ArrayList<>(getPairs());
+		requestedPairs.removeAll(toRemoveList);
+		return requestedPairs;
+	}
+
+	public Collection<MoxPair> getPairs(){
+		if (chain == null){
+			this.initializeEmptyChain();
+		}
+		return this.chain.getPairs();
 	}
 
 	@Nullable

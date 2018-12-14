@@ -16,14 +16,29 @@ public class ParticleData {
 	private Double offsetX = 0d, offsetY = 0d, offsetZ = 0d;
 	private Double extra = 0d;
 	private Integer count = 1;
-	private Object data = null;
+	private Object particleData = null;
 	private Location location = null;
-	// Particle | offset xyz | extra (speed) | data (np. kolor)
+	// Particle | offset xyz | extra (speed) | particleData (np. kolor)
 
 
 	// ------------------
 	// CONSTRUCTORS
 	// ------------------
+
+	public ParticleData(ParticleData particleData){
+		if (particleData == null){
+			return;
+		}
+		this.particle = particleData.getParticle();
+		this.location = particleData.getLocation();
+		this.count = particleData.getCount();
+		this.offsetX = particleData.getOffsetX();
+		this.offsetY = particleData.getOffsetY();
+		this.offsetZ = particleData.getOffsetZ();
+		this.extra = particleData.getExtra();
+		this.particleData = particleData.getParticleData();
+
+	}
 
 	public ParticleData(Particle particle, Location location, Integer count, Double offsetX, Double offsetY, Double offsetZ, Double extra, Object data) {
 		this.particle = particle;
@@ -43,7 +58,7 @@ public class ParticleData {
 		if (extra != null) {
 			this.extra = extra;
 		}
-		this.data = data;
+		this.particleData = data;
 	}
 
 	public ParticleData(Particle particle, Location location, Integer count, Double offsetX, Double offsetY, Double offsetZ, Double extra){
@@ -109,6 +124,15 @@ public class ParticleData {
 	// GETTERS & SETTERS
 	// ------------------
 
+
+	public Integer getCount() {
+		return count;
+	}
+
+	public void setCount(Integer count) {
+		this.count = count;
+	}
+
 	public Double getOffsetX() {
 		return offsetX;
 	}
@@ -149,12 +173,12 @@ public class ParticleData {
 		this.extra = extra;
 	}
 
-	public Object getData() {
-		return data;
+	public Object getParticleData() {
+		return particleData;
 	}
 
-	public void setData(Object data) {
-		this.data = data;
+	public void setParticleData(Object particleData) {
+		this.particleData = particleData;
 	}
 
 	public Location getLocation() {
@@ -170,22 +194,41 @@ public class ParticleData {
 	// METHODS
 	// ------------------
 
-	public boolean spawnParticle(Player player){
+	public boolean spawn(Player player, Location location){
 		if (location != null){
-			player.spawnParticle(this.particle, this.location, this.count, this.offsetX, this.offsetY, this.offsetZ, this.extra, this.data);
+			player.spawnParticle(this.particle, location, this.count, this.offsetX, this.offsetY, this.offsetZ, this.extra, this.particleData);
+			return true;
+		}
+		return false;
+	}
+
+	public boolean spawn(Player player){
+		if (location != null){
+			player.spawnParticle(this.particle, this.location, this.count, this.offsetX, this.offsetY, this.offsetZ, this.extra, this.particleData);
 			return true;
 		}
 		return false;
 	}
 
 
-	public boolean spawnParticle(Collection<? extends Player> players){
+	public boolean spawn(Collection<? extends Player> players){
 		if (this.location != null){
 			for (Player player : players){
-				player.spawnParticle(this.particle, this.location, this.count, this.offsetX, this.offsetY, this.offsetZ, this.extra, this.data);
+				player.spawnParticle(this.particle, this.location, this.count, this.offsetX, this.offsetY, this.offsetZ, this.extra, this.particleData);
 			}
 			return true;
 		}
 		return false;
 	}
+
+	public boolean spawn(Collection<? extends Player> players, Location location){
+		if (this.location != null){
+			for (Player player : players){
+				player.spawnParticle(this.particle, location, this.count, this.offsetX, this.offsetY, this.offsetZ, this.extra, this.particleData);
+			}
+			return true;
+		}
+		return false;
+	}
+
 }
