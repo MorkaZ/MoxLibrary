@@ -166,7 +166,6 @@ public class ServerUtils {
 		return null;
 	}
 
-
 	private static PluginCommand createPluginCommand(String name, Plugin plugin) {
 		try {
 			Constructor<PluginCommand> constructor = PluginCommand.class.getDeclaredConstructor( String.class, Plugin.class );

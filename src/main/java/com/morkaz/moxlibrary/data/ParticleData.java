@@ -124,6 +124,9 @@ public class ParticleData {
 	// GETTERS & SETTERS
 	// ------------------
 
+	public ParticleData getThis(){
+		return this;
+	}
 
 	public Integer getCount() {
 		return count;

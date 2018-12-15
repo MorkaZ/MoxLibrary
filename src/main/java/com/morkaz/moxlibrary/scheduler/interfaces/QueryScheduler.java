@@ -13,8 +13,8 @@ public interface QueryScheduler {
 
     void reloadScheduler();
 
-    void scheduleQuery(Query query);
+    void scheduleQuery(String query);
 
-    void unscheduleQuery(Query query);
+    void unscheduleQuery(String query);
 
 }

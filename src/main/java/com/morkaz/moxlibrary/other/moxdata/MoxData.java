@@ -35,6 +35,10 @@ public class MoxData {
 		}
 	}
 
+	public Boolean isEmpty(){
+		return chain.isEmpty();
+	}
+
 	public MoxChain getChain(){
 		if (chain == null){
 			this.initializeEmptyChain();

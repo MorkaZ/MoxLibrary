@@ -1,6 +1,5 @@
 package com.morkaz.moxlibrary.scheduler;
 
-import com.morkaz.moxlibrary.database.sql.Query;
 import com.morkaz.moxlibrary.database.sql.SQLDatabase;
 import com.morkaz.moxlibrary.scheduler.interfaces.QueryScheduler;
 import org.bukkit.plugin.Plugin;
@@ -14,7 +13,7 @@ import java.util.List;
 public class SimpleSQLScheduler implements QueryScheduler {
 
     private Plugin main;
-    private List<Query> queryList = new ArrayList<>();
+    private List<String> queryList = new ArrayList<>();
     private Boolean processing = false, sync;
     private BukkitTask schedulerTask;
     private SQLDatabase sqlDatabase;
@@ -32,13 +31,13 @@ public class SimpleSQLScheduler implements QueryScheduler {
             public void run() {
                 if (!processing) {
                     processing = true;
-                    List<Query> copiedQueryList = (List<Query>)((ArrayList<Query>)queryList).clone();
+                    List<String> copiedQueryList = (List<String>)((ArrayList<String>)queryList).clone();
                     queryList.clear();
-                    for (Query query : copiedQueryList) {
+                    for (String query : copiedQueryList) {
                         if (sync){
-                            sqlDatabase.updateSync(query.getQuery());
+                            sqlDatabase.updateSync(query);
                         } else {
-                            sqlDatabase.updateAsync(query.getQuery());
+                            sqlDatabase.updateAsync(query);
                         }
                     }
                     processing = false;
@@ -68,12 +67,12 @@ public class SimpleSQLScheduler implements QueryScheduler {
     }
 
     @Override
-    public void scheduleQuery(Query query) {
+    public void scheduleQuery(String query) {
         queryList.add(query);
     }
 
     @Override
-    public void unscheduleQuery(Query query) {
+    public void unscheduleQuery(String query) {
         queryList.remove(query);
     }
 }
