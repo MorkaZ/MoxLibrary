@@ -5,6 +5,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -20,6 +21,10 @@ public class ToolBox {
 		return objectList.stream()
 				.map(object -> Objects.toString(object, null))
 				.collect(Collectors.toList());
+	}
+
+	public static List<String> toStringList(Object... objects){
+		return toStringList(Arrays.asList(objects));
 	}
 
 	// 1y,1M,1w,1d,1h,1m,1s
@@ -58,6 +63,10 @@ public class ToolBox {
 
 	public static <C> C[] asArray(C... obj) {
 		return obj;
+	}
+
+	public static <E extends Enum<E>> Boolean enumContains(Class<E> clazz, String valueString){
+		return toStringList(clazz.getEnumConstants()).contains(valueString.toUpperCase());
 	}
 
 

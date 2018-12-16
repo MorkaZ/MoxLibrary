@@ -17,7 +17,7 @@ public class MoxChain {
 	}
 
 	public MoxChain(String stringData){
-		String[] splitedStringData = stringData.split(Separator.CHAIN.toString());
+		String[] splitedStringData = stringData.split(Separator.CHAIN.toString().replace(".", "\\."));
 		if (splitedStringData.length <= 1){
 			return;
 		}

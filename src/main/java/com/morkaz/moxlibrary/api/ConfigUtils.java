@@ -1,10 +1,10 @@
 package com.morkaz.moxlibrary.api;
 
+import com.morkaz.moxlibrary.data.ParticleData;
 import com.morkaz.moxlibrary.data.SoundData;
-import org.bukkit.Bukkit;
-import org.bukkit.Color;
-import org.bukkit.Material;
-import org.bukkit.Sound;
+import org.apache.commons.lang.math.NumberUtils;
+import org.bukkit.*;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -128,6 +128,40 @@ public class ConfigUtils {
 		return null;
 	}
 
+	public static ParticleData loadParticle(FileConfiguration config, String contentPrefix, Plugin plugin){
+		String particleString = config.getString(contentPrefix+".particle");
+		Particle particle = Particle.SPELL;
+		if (ToolBox.enumContains(Particle.class, particleString)){
+			particle = Particle.valueOf(config.getString(contentPrefix+".particle"));
+		}
+		Double offsetX = config.getDouble(contentPrefix+".offset-X");
+		Double offsetY = config.getDouble(contentPrefix+".offset-Y");
+		Double offsetZ = config.getDouble(contentPrefix+".offset-Z");
+		Integer amount = config.getInt(contentPrefix+".amount");
+		Double extra = config.getDouble(contentPrefix+".extra");
+		Object data = null;
+		if (particle.getDataType() != Void.class){
+			if (particle.getDataType() == Particle.DustOptions.class){
+				Integer size = config.getInt("default-setting.data.dust-options.size");
+				if (size == null){
+					size = 1;
+				}
+				Color color = loadColor(config, contentPrefix+".data.dust-options", plugin);
+				data = new Particle.DustOptions(color, size);
+			} else if (particle.getDataType() == ItemStack.class){
+				data = ConfigUtils.loadItemStack(config, contentPrefix+".data.item", plugin);
+			} else if (particle.getDataType() == BlockData.class){
+				String materialString = config.getString(contentPrefix+".data.block-data.material");
+				Material material = Material.STONE;
+				if (materialString != null && ToolBox.enumContains(Material.class, materialString)){
+					material = Material.valueOf(config.getString(contentPrefix+".data.block-data.material"));
+				}
+				data = material.createBlockData();
+			}
+		}
+		return new ParticleData(particle, null, amount, offsetX, offsetY, offsetZ, extra, data);
+	}
+
 	/**
 	 * This method is used to create itemstack from data written in FileConfiguration.
 	 *
@@ -150,45 +184,35 @@ public class ConfigUtils {
 		String itemLore = config.getString(contentPrefix + ".lore");
 		Boolean glow = config.getBoolean(contentPrefix + ".glow");
 		ItemStack itemStack;
-		if (materialTxt != null) {
-			Material material = Material.getMaterial(materialTxt.toUpperCase());
-			if (data == null){
-				data = 0;
-			}
-			if (amount == null){
-				amount = 1;
-			}
-			if (material == null){
-				Bukkit.getLogger().info(ServerUtils.constructExceptionCause(plugin,
-						"[MoxLibrary] Given material name: "+materialTxt.toUpperCase()+" is undefined in Bukkit enums.\n" +
-								"Problem found in config section \""+contentPrefix+"\"."));
-				return null;
-			}
-			itemStack = ItemUtils.createItemStack(material, amount, data, itemName, itemLore, glow);
-//		} else if (id != null){
-//			itemStack = itemUtils.createItemStack(id, amount, data, itemName, itemLore, glow);
-		} else {
-				Bukkit.getLogger().info("[MoxLibrary] There is no required material or ID data to load and create item stack. " +
-						"Caused by: "+plugin.getName()+". ");
-			return null;
+		if (materialTxt == null){
+			materialTxt = "STONE";
+		} else if (materialTxt.equalsIgnoreCase("")){
+			materialTxt = "STONE";
+		} else if (!ToolBox.enumContains(Material.class, materialTxt)){
+			materialTxt = "STONE";
+			Bukkit.getLogger().info(ServerUtils.constructExceptionCause(plugin,
+					"[MoxLibrary] Given material name: "+materialTxt.toUpperCase()+" is undefined in Bukkit enums.\n" +
+							"Problem found in config section \""+contentPrefix+"\" of plugin \""+plugin != null ? plugin.getName() : "<UNDEFINED>"+"\"."));
 		}
+		Material material = Material.getMaterial(materialTxt.toUpperCase());
+		if (data == null){
+			data = 0;
+		}
+		if (amount == null){
+			amount = 1;
+		}
+		itemStack = ItemUtils.createItemStack(material, amount, data, itemName, itemLore, glow);
 		if (ItemUtils.isPotion(itemStack)) {
 			String potionEffect = config.getString(contentPrefix + ".potion-data.effect");
 			Integer potionDuration = config.getInt(contentPrefix + ".potion-data.duration");
 			Integer potionAmplifer = config.getInt(contentPrefix + ".potion-data.amplifer");
-			String potionColorRaw = config.getString(contentPrefix + ".potion-data.color");
 			if (potionEffect != null && potionDuration != null && potionAmplifer != null) {
 				itemStack = ItemUtils.addPotionEffect(itemStack, PotionEffectType.getByName(potionEffect), potionDuration, potionAmplifer);
-				if (potionColorRaw != null){
-					String[] potionColorSplit = potionColorRaw.replace(" ", "").split(",");
-					int colorRed = Integer.valueOf(potionColorSplit[0]);
-					int colorGreen = Integer.valueOf(potionColorSplit[1]);
-					int colorBlue = Integer.valueOf(potionColorSplit[2]);
-					Color color = Color.fromRGB(colorRed, colorGreen, colorBlue);
-					itemStack = ItemUtils.setPotionColor(itemStack, color);
-				}
 			}
+			Color color = loadColor(config, contentPrefix + ".potion-data.color", Color.fromBGR(50, 50, 200), plugin);
+			itemStack = ItemUtils.setPotionColor(itemStack, color);
 		}
+		// TODO ifHead
 		// Enchants
 		List<String> rawEnchants = config.getStringList(contentPrefix + ".enchants");
 		Map<Enchantment, Integer> enchants;
@@ -198,6 +222,47 @@ public class ConfigUtils {
 		}
 		return itemStack;
 	}
+
+	public static Color loadColor(FileConfiguration config, String contentPrefix, Plugin plugin){
+		return loadColor(config, contentPrefix, Color.WHITE, plugin);
+	}
+
+	public static Color loadColor(FileConfiguration config, String contentPrefix, Color defaultColor, Plugin plugin) {
+			String colorString = config.getString(contentPrefix);
+			Integer red = defaultColor.getRed(), green = defaultColor.getGreen(), blue = defaultColor.getBlue();
+			if (colorString != null && !colorString.equalsIgnoreCase("")) {
+				String[] colorStringSplited = colorString.replace(" ", "").split(",");
+				if (colorStringSplited.length >= 1) {
+					if (NumberUtils.isNumber(colorStringSplited[0])) {
+						red = Integer.valueOf(colorStringSplited[0]);
+					}
+				}
+				if (colorStringSplited.length >= 2) {
+					if (NumberUtils.isNumber(colorStringSplited[1])) {
+						green = Integer.valueOf(colorStringSplited[1]);
+					}
+				}
+				if (colorStringSplited.length == 3) {
+					if (NumberUtils.isNumber(colorStringSplited[2])) {
+						red = Integer.valueOf(colorStringSplited[2]);
+					}
+				}
+			} else if (config.getConfigurationSection(contentPrefix).getKeys(false).size() > 0) {
+				Integer configRed = config.getInt(contentPrefix + ".red");
+				Integer configGreen = config.getInt(contentPrefix + ".green");
+				Integer configBlue = config.getInt(contentPrefix + ".blue");
+				if (configRed != null) {
+					red = configRed;
+				}
+				if (configGreen != null) {
+					green = configGreen;
+				}
+				if (configBlue != null) {
+					blue = configBlue;
+				}
+			}
+			return Color.fromRGB(red, green, blue);
+		}
 
 	/**
 	 * This method transfers String enchantments that are in format "ENCHANTMENT N",
@@ -209,30 +274,29 @@ public class ConfigUtils {
 		for (String stringEnchant : enchantList) {
 			String[] splitEnchant = stringEnchant.split(" ");
 			if (splitEnchant.length != 2) {
-				Bukkit.getLogger().warning("[MoxLibrary] Error while loading enchantment at "+stringEnchant+". " +
-							"There is no space, no enchant number or more/less than 2 values (enchantment <number>). " +
-							"Caused by plugin: "+plugin.getName()+". ");
+				Bukkit.getLogger().warning("[MoxLibrary] Error while loading enchantment at " + stringEnchant + ". " +
+						"There is no space, no enchant number or more/less than 2 values (enchantment <number>). " +
+						"Caused by plugin: " + plugin.getName() + ". ");
 				continue;
 			}
 			Integer enchantLevel = Integer.valueOf(splitEnchant[1]);
 			String enchantName = splitEnchant[0].toUpperCase();
 			if (enchantLevel == null || enchantLevel <= 0) {
-				Bukkit.getLogger().warning("[MoxLibrary] Error while loading enchantment "+stringEnchant+". " +
-							"There is problem with loading enchantment level of "+enchantName+". " +
-							"Caused by plugin: "+plugin.getName()+". ");
+				Bukkit.getLogger().warning("[MoxLibrary] Error while loading enchantment " + stringEnchant + ". " +
+						"There is problem with loading enchantment level of " + enchantName + ". " +
+						"Caused by plugin: " + plugin.getName() + ". ");
 				continue;
 			}
 			Enchantment enchant = Enchantment.getByName(enchantName);
 			if (enchant == null) {
-				Bukkit.getLogger().warning("[MoxLibrary] Error while loading enchantment "+stringEnchant +". " +
-							"Enchant name not found! ("+enchantName+"). " +
-							"Please use bukkit enum names! Google: Enchantments bukkit. " +
-							"Caused by plugin: "+plugin.getName()+". ");
+				Bukkit.getLogger().warning("[MoxLibrary] Error while loading enchantment " + stringEnchant + ". " +
+						"Enchant name not found! (" + enchantName + "). " +
+						"Please use bukkit enum names! Google: Enchantments bukkit. " +
+						"Caused by plugin: " + plugin.getName() + ". ");
 				continue;
 			}
 			enchants.put(enchant, enchantLevel);
 		}
 		return enchants;
 	}
-
 }

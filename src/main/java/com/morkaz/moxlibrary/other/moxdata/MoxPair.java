@@ -1,5 +1,6 @@
 package com.morkaz.moxlibrary.other.moxdata;
 
+import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
 public class MoxPair<T> {
@@ -7,7 +8,7 @@ public class MoxPair<T> {
 	Pair<String, T> pair;
 
 	public MoxPair(String key, T value){
-		this.pair = Pair.of(key, value);
+		this.pair = new MutablePair(key, value);
 	}
 
 	/*
@@ -16,7 +17,9 @@ public class MoxPair<T> {
 	public MoxPair(String stringData) throws UncorrectStringDataException{
 		String[] splitedStringData = stringData.split(Separator.PAIR.toString());
 		if (splitedStringData.length != 2) {
-			throw new UncorrectStringDataException("Data has not been splited correctly! Splited string data must have 1 separator. Actual separators amount: " + splitedStringData.length + ". Splited data: " + splitedStringData.toString());
+			throw new UncorrectStringDataException("Data has not been splited correctly! Splited string data must have 1 separator. " +
+					"Actual separators amount: " + splitedStringData.length + ". " +
+					"Splited data: " + String.join("", splitedStringData));
 		}
 		this.pair = Pair.of(splitedStringData[0], (T)splitedStringData[1]);
 	}
@@ -30,7 +33,7 @@ public class MoxPair<T> {
 	}
 
 	public String getKey(){
-		return this.getKey();
+		return this.pair.getKey();
 	}
 
 	public String getString(){
