@@ -1,4 +1,4 @@
 # MoxLibrary
-THIS IS NOT AN PLUGIN. It is a library that must be exported into your plugin.
+MoxLibrary is a utility library for spigot/bukkit minecraft server plugins. To use it, you need to add dependency into your project.
 
-If you want to have this source as a plugin, download and use our MoxCore plugin!
+Please, if you want to use it in multiple plugins or use other MoxPlugins, download and install MoxCore and use it as dependency because this plugin contains this library. Class loader will load all classes just once, so MoxLibrary can be used once per server - please, keep it in mind.
