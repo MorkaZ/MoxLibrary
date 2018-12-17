@@ -66,7 +66,9 @@ public class ToolBox {
 	}
 
 	public static <E extends Enum<E>> Boolean enumContains(Class<E> clazz, String valueString){
-		return toStringList(clazz.getEnumConstants()).contains(valueString.toUpperCase());
+		E[] enumValues = clazz.getEnumConstants();
+		List<String> enumStringValuesList = toStringList(enumValues);
+		return enumStringValuesList.contains(valueString);
 	}
 
 

@@ -5,6 +5,7 @@ import com.morkaz.moxlibrary.data.SoundData;
 import org.apache.commons.lang.math.NumberUtils;
 import org.bukkit.*;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -20,6 +21,7 @@ import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -128,40 +130,6 @@ public class ConfigUtils {
 		return null;
 	}
 
-	public static ParticleData loadParticle(FileConfiguration config, String contentPrefix, Plugin plugin){
-		String particleString = config.getString(contentPrefix+".particle");
-		Particle particle = Particle.SPELL;
-		if (ToolBox.enumContains(Particle.class, particleString)){
-			particle = Particle.valueOf(config.getString(contentPrefix+".particle"));
-		}
-		Double offsetX = config.getDouble(contentPrefix+".offset-X");
-		Double offsetY = config.getDouble(contentPrefix+".offset-Y");
-		Double offsetZ = config.getDouble(contentPrefix+".offset-Z");
-		Integer amount = config.getInt(contentPrefix+".amount");
-		Double extra = config.getDouble(contentPrefix+".extra");
-		Object data = null;
-		if (particle.getDataType() != Void.class){
-			if (particle.getDataType() == Particle.DustOptions.class){
-				Integer size = config.getInt("default-setting.data.dust-options.size");
-				if (size == null){
-					size = 1;
-				}
-				Color color = loadColor(config, contentPrefix+".data.dust-options", plugin);
-				data = new Particle.DustOptions(color, size);
-			} else if (particle.getDataType() == ItemStack.class){
-				data = ConfigUtils.loadItemStack(config, contentPrefix+".data.item", plugin);
-			} else if (particle.getDataType() == BlockData.class){
-				String materialString = config.getString(contentPrefix+".data.block-data.material");
-				Material material = Material.STONE;
-				if (materialString != null && ToolBox.enumContains(Material.class, materialString)){
-					material = Material.valueOf(config.getString(contentPrefix+".data.block-data.material"));
-				}
-				data = material.createBlockData();
-			}
-		}
-		return new ParticleData(particle, null, amount, offsetX, offsetY, offsetZ, extra, data);
-	}
-
 	/**
 	 * This method is used to create itemstack from data written in FileConfiguration.
 	 *
@@ -223,46 +191,90 @@ public class ConfigUtils {
 		return itemStack;
 	}
 
+	public static ParticleData loadParticleData(FileConfiguration config, String contentPrefix, Plugin plugin){
+		Particle particle = Particle.SPELL;
+		String particleString = config.getString(contentPrefix+".particle");
+		if (ToolBox.enumContains(Particle.class, particleString)){
+			particle = Particle.valueOf(particleString);
+		}
+		return loadParticleData(config, contentPrefix, particle, plugin);
+	}
+
+	public static ParticleData loadParticleData(FileConfiguration config, String contentPrefix, Particle particle, Plugin plugin){
+		Double offsetX = config.getDouble(contentPrefix+".offset-X");
+		Double offsetY = config.getDouble(contentPrefix+".offset-Y");
+		Double offsetZ = config.getDouble(contentPrefix+".offset-Z");
+		Integer amount = config.getInt(contentPrefix+".amount");
+		Double extra = config.getDouble(contentPrefix+".extra");
+		Object data = null;
+		if (particle.getDataType() != Void.class){
+			if (particle.getDataType() == Particle.DustOptions.class){
+				Integer size = config.getInt("default-setting.data.dust-options.size");
+				if (size == null){
+					size = 1;
+				}
+				Color color = loadColor(config, contentPrefix+".data.dust-options", plugin);
+				data = new Particle.DustOptions(color, size);
+			} else if (particle.getDataType() == ItemStack.class){
+				data = ConfigUtils.loadItemStack(config, contentPrefix+".data.item", plugin);
+			} else if (particle.getDataType() == BlockData.class){
+				String materialString = config.getString(contentPrefix+".data.block-data.material");
+				Material material = Material.STONE;
+				if (materialString != null && ToolBox.enumContains(Material.class, materialString)){
+					material = Material.valueOf(config.getString(contentPrefix+".data.block-data.material"));
+				}
+				data = material.createBlockData();
+			}
+		}
+		return new ParticleData(particle, null, amount, offsetX, offsetY, offsetZ, extra, data);
+	}
+
 	public static Color loadColor(FileConfiguration config, String contentPrefix, Plugin plugin){
 		return loadColor(config, contentPrefix, Color.WHITE, plugin);
 	}
 
 	public static Color loadColor(FileConfiguration config, String contentPrefix, Color defaultColor, Plugin plugin) {
-			String colorString = config.getString(contentPrefix);
-			Integer red = defaultColor.getRed(), green = defaultColor.getGreen(), blue = defaultColor.getBlue();
-			if (colorString != null && !colorString.equalsIgnoreCase("")) {
-				String[] colorStringSplited = colorString.replace(" ", "").split(",");
-				if (colorStringSplited.length >= 1) {
-					if (NumberUtils.isNumber(colorStringSplited[0])) {
-						red = Integer.valueOf(colorStringSplited[0]);
-					}
+		Integer red = defaultColor.getRed(), green = defaultColor.getGreen(), blue = defaultColor.getBlue();
+		if (config == null){
+			return Color.fromRGB(red, green, blue);
+		}
+		String colorString = config.getString(contentPrefix);
+		if (colorString != null && !colorString.equalsIgnoreCase("") && !colorString.startsWith("MemorySection")) {
+			String[] colorStringSplited = colorString.replace(" ", "").split(",");
+			if (colorStringSplited.length >= 1) {
+				if (NumberUtils.isNumber(colorStringSplited[0])) {
+					red = Integer.valueOf(colorStringSplited[0]);
 				}
-				if (colorStringSplited.length >= 2) {
-					if (NumberUtils.isNumber(colorStringSplited[1])) {
-						green = Integer.valueOf(colorStringSplited[1]);
-					}
+			}
+			if (colorStringSplited.length >= 2) {
+				if (NumberUtils.isNumber(colorStringSplited[1])) {
+					green = Integer.valueOf(colorStringSplited[1]);
 				}
-				if (colorStringSplited.length == 3) {
-					if (NumberUtils.isNumber(colorStringSplited[2])) {
-						red = Integer.valueOf(colorStringSplited[2]);
-					}
-				}
-			} else if (config.getConfigurationSection(contentPrefix).getKeys(false).size() > 0) {
-				Integer configRed = config.getInt(contentPrefix + ".red");
-				Integer configGreen = config.getInt(contentPrefix + ".green");
-				Integer configBlue = config.getInt(contentPrefix + ".blue");
-				if (configRed != null) {
-					red = configRed;
-				}
-				if (configGreen != null) {
-					green = configGreen;
-				}
-				if (configBlue != null) {
-					blue = configBlue;
+			}
+			if (colorStringSplited.length == 3) {
+				if (NumberUtils.isNumber(colorStringSplited[2])) {
+					red = Integer.valueOf(colorStringSplited[2]);
 				}
 			}
 			return Color.fromRGB(red, green, blue);
 		}
+		ConfigurationSection configurationSection = config.getConfigurationSection(contentPrefix);
+		if (configurationSection != null && configurationSection.getKeys(false).size() > 0) {
+			Integer configRed = config.getInt(contentPrefix + ".red");
+			Integer configGreen = config.getInt(contentPrefix + ".green");
+			Integer configBlue = config.getInt(contentPrefix + ".blue");
+			if (configRed != null) {
+				red = configRed;
+			}
+			if (configGreen != null) {
+				green = configGreen;
+			}
+			if (configBlue != null) {
+				blue = configBlue;
+			}
+		}
+		return Color.fromRGB(red, green, blue);
+	}
 
 	/**
 	 * This method transfers String enchantments that are in format "ENCHANTMENT N",

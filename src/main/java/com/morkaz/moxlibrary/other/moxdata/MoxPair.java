@@ -21,7 +21,7 @@ public class MoxPair<T> {
 					"Actual separators amount: " + splitedStringData.length + ". " +
 					"Splited data: " + String.join("", splitedStringData));
 		}
-		this.pair = Pair.of(splitedStringData[0], (T)splitedStringData[1]);
+		this.pair = new MutablePair(splitedStringData[0], (T)splitedStringData[1]);
 	}
 
 	public T getValue(){
