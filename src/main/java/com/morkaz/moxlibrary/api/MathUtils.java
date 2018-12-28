@@ -7,7 +7,7 @@ import java.util.Random;
 public class MathUtils {
 
 
-	public static boolean chanceOfProcent(Number procent) {
+	public static boolean chanceOfPercent(Number procent) {
 		return chanceOfDec(procent.doubleValue()/100d);
 	}
 

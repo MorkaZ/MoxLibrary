@@ -14,6 +14,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
+import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,18 @@ public class ChestGUI {
 	public static Map<Inventory, ChestGUI> chestGUIMap = new HashMap<>();
 	//It has to be initialized once.
 	public static GUIListener guiListener = null;
+
+	@Nullable
+	public static ChestGUI getGUIOfPlayer(Player player){
+		Inventory inventory = player.getOpenInventory().getTopInventory();
+		return chestGUIMap.get(inventory);
+	}
+
+	public static Boolean isGUI(Inventory inventory){
+		return chestGUIMap.containsKey(inventory);
+	}
+
+
 
 	private Integer size;
 	private String title;
