@@ -32,7 +32,7 @@ public class ToolBox {
 		if (separator == null || separator.equals("")){
 			separator = ",";
 		}
-		String[] splitedExpression = expression.split(",");
+		String[] splitedExpression = expression.split(separator);
 		Integer seconds = 0;
 		for (String part : splitedExpression){
 			if (part.substring(part.length()).equals("y")){
