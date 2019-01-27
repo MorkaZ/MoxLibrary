@@ -43,6 +43,15 @@ public class MoxData {
 		this.chain = chain;
 	}
 
+	public void clearData(){
+		this.chain.clear();
+	}
+
+	public void clearAll(){
+		this.chain.clear();
+		this.mainKey = null;
+	}
+
 	public Boolean isEmpty(){
 		return chain.isEmpty();
 	}
@@ -78,6 +87,14 @@ public class MoxData {
 			pair.setValue(value);
 		}
 		return true;
+	}
+
+	public List<String> getKeys(){
+		return chain.getKeys();
+	}
+
+	public List<Object> getValues(){
+		return chain.getValues();
 	}
 
 	public Collection<MoxPair> getPairs(Collection<String> keys){

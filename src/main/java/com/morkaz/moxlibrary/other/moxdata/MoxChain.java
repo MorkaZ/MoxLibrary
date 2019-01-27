@@ -36,6 +36,26 @@ public class MoxChain {
 		this.addPairs(pairList);
 	}
 
+	public List<String> getKeys(){
+		List<String> keyList = new ArrayList<>();
+		for(MoxPair moxPair : getPairs()){
+			keyList.add(moxPair.getKey());
+		}
+		return keyList;
+	}
+
+	public List<Object> getValues(){
+		List<Object> valueList = new ArrayList<>();
+		for(MoxPair moxPair : getPairs()){
+			valueList.add(moxPair.getValue());
+		}
+		return valueList;
+	}
+
+	public void clear(){
+		this.pairMap.clear();
+	}
+
 	public MoxPair getPair(String key){
 		return this.pairMap.get(key);
 	}
