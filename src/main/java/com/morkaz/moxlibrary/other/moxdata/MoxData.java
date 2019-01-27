@@ -35,6 +35,14 @@ public class MoxData {
 		}
 	}
 
+	public void setMainKey(String mainKey) {
+		this.mainKey = mainKey;
+	}
+
+	public void setChain(MoxChain chain) {
+		this.chain = chain;
+	}
+
 	public Boolean isEmpty(){
 		return chain.isEmpty();
 	}
