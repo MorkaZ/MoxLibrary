@@ -21,7 +21,6 @@ import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -144,7 +143,7 @@ public class ConfigUtils {
 	@Nullable
 	public static ItemStack loadItemStack(FileConfiguration config, String contentPrefix, Plugin plugin){
 		// ItemStack
-		String materialTxt = config.getString(contentPrefix + ".material");
+		String materialTxt = (config.getString(contentPrefix + ".material")+"").toUpperCase();
 		//Integer id = config.getInt(contentPrefix + ".id");
 		Integer amount = config.getInt(contentPrefix + ".amount");
 		Integer data = config.getInt(contentPrefix + ".data");
@@ -156,11 +155,11 @@ public class ConfigUtils {
 			materialTxt = "STONE";
 		} else if (materialTxt.equalsIgnoreCase("")){
 			materialTxt = "STONE";
-		} else if (!ToolBox.enumContains(Material.class, materialTxt)){
+		} else if (Material.getMaterial(materialTxt) == null){
+			String pluginName = plugin != null ? plugin.getName() : "<UNDEFINED>"+".";
+			Bukkit.getLogger().info("[MoxLibrary] Given material name: "+materialTxt.toUpperCase()+" is undefined in Bukkit enums.\n"
+					+ "Problem found in config section \""+contentPrefix+"\" of plugin: \""+pluginName+"\"");
 			materialTxt = "STONE";
-			Bukkit.getLogger().info(ServerUtils.constructExceptionCause(plugin,
-					"[MoxLibrary] Given material name: "+materialTxt.toUpperCase()+" is undefined in Bukkit enums.\n" +
-							"Problem found in config section \""+contentPrefix+"\" of plugin \""+plugin != null ? plugin.getName() : "<UNDEFINED>"+"\"."));
 		}
 		Material material = Material.getMaterial(materialTxt.toUpperCase());
 		if (data == null){

@@ -69,7 +69,6 @@ public class ItemUtils {
 			return null;
 		}
 		ItemStack itemStack = new ItemStack(potionType, amount);
-		PotionMeta itemMeta = (PotionMeta)itemStack.getItemMeta();
 		itemStack = addPotionEffect(itemStack, potionEffect, duration, amplifier);
 		return itemStack;
 	}

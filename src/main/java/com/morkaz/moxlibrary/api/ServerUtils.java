@@ -74,11 +74,6 @@ public class ServerUtils {
 		return registerCommand(commandData.getPlugin(), commandData.getMainCommand(), commandData.getAliases(), commandData.getDescription(), commandData.getUsage(), commandData.getCommandExecutor());
 	}
 
-	public static String constructExceptionCause(Plugin plugin, String cause){
-		String text = cause + " \nCaused by: "+plugin.getName()+". ";
-		return text;
-	}
-
 	public static void setTablistHeaderFooter(Player player, String header, String footer){
 		setTablistFooter(player, footer);
 		setTablistHeader(player, header);
