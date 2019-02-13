@@ -38,13 +38,14 @@ public class Pages<T> {
 		List<T> pageObjects = new ArrayList<>();
 		for (T object : objectCollection){
 			counter++;
-			if (counter < objectsPerPage){
+			if (counter <= objectsPerPage){
 				pageObjects.add(object);
 			} else {
 				pagesMap.put(actualPage, new ArrayList(pageObjects));
 				pageObjects.clear();
 				counter = 0;
-				actualPage =+ actualPage;
+				actualPage++;
+				pageObjects.add(object);
 			}
 		}
 		if (pageObjects.size() > 0){
