@@ -43,9 +43,9 @@ public class Pages<T> {
 			} else {
 				pagesMap.put(actualPage, new ArrayList(pageObjects));
 				pageObjects.clear();
-				counter = 0;
 				actualPage++;
 				pageObjects.add(object);
+				counter = 1; // not 0 because we added already 1 object
 			}
 		}
 		if (pageObjects.size() > 0){
