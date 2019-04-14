@@ -149,6 +149,9 @@ public class ConfigUtils {
 		Integer data = config.getInt(contentPrefix + ".data");
 		String itemName = config.getString(contentPrefix + ".name");
 		String itemLore = config.getString(contentPrefix + ".lore");
+		if (itemLore == null || itemLore.equals("") || itemLore.startsWith("MemorySection")){
+			itemLore = String.join("||", config.getStringList(contentPrefix + ".lore"));
+		}
 		Boolean glow = config.getBoolean(contentPrefix + ".glow");
 		ItemStack itemStack;
 		if (materialTxt == null){

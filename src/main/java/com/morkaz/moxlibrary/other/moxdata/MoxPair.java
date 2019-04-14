@@ -18,8 +18,10 @@ public class MoxPair<T> {
 		String[] splitedStringData = stringData.split(Separator.PAIR.toString());
 		if (splitedStringData.length != 2) {
 			throw new UncorrectStringDataException("Data has not been splited correctly! Splited string data must have 1 separator. " +
-					"Actual separators amount: " + splitedStringData.length + ". " +
-					"Splited data: " + String.join("", splitedStringData));
+					"Actual elements size (should be 2): " + splitedStringData.length + ". " +
+					"Splited data: " + String.join("", splitedStringData) + ". "  +
+					"Text data (before split): " + stringData
+			);
 		}
 		this.pair = new MutablePair(splitedStringData[0], (T)splitedStringData[1]);
 	}

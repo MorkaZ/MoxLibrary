@@ -22,7 +22,12 @@ public class MoxChain {
 		for (String stringPair : splitedStringData){
 			MoxPair pair = null;
 			try {
-				pair = new MoxPair(stringPair);
+				if (stringPair.contains(Separator.PAIR.toString())){
+					pair = new MoxPair(stringPair);
+				} else {
+					// Continue because it will not be pair so this part of chain should be discarded.
+					continue;
+				}
 			} catch (UncorrectStringDataException e) {
 				e.printStackTrace();
 			}
