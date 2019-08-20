@@ -106,13 +106,14 @@ public class MySQLDatabase extends SQLScheduler implements SQLDatabase {
 	@Override
 	public Connection createConnection(String... data) {
 		try {
-			if (mySQLConnection.getConnection() != null && !this.mySQLConnection.getConnection().isClosed()){
+			if (mySQLConnection != null && mySQLConnection.getConnection() != null && !this.mySQLConnection.getConnection().isClosed()){
 				return this.mySQLConnection.getConnection();
 			}
 		} catch (SQLException e) {
 			return null;
 		}
 		MySQLConnection mySQL = new MySQLConnection(data[0], data[1], data[2], data[3], data[4]);
+		mySQLConnection = mySQL;
 		try {
 			mySQLConnection.setConnection(mySQL.openConnection());
 			if (mySQLConnection.getConnection().isClosed()){

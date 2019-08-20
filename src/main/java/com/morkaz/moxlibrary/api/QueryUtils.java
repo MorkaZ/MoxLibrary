@@ -62,12 +62,13 @@ public class QueryUtils {
 		Object value = pair.getRight();
 		if (value instanceof Number) {
 			query = "DELETE FROM `"+table+"` "+
-					"WHERE `"+column+"` = "+value+" "+
-					"LIMIT 1";
+					"WHERE `"+column+"` = "+value+" ";
 		} else {
 			query = "DELETE FROM `"+table+"` "+
-					"WHERE `"+column+"` = '"+value+"' "+
-					"LIMIT 1";
+					"WHERE `"+column+"` = '"+value+"' ";
+		}
+		if (databaseType != SQLDatabaseType.SQLITE){
+			query = query + "LIMIT 1";
 		}
 		return query;
 	}
@@ -76,13 +77,13 @@ public class QueryUtils {
 		String query;
 		if (value instanceof Number) {
 			query = "DELETE FROM `"+table+"` " +
-					"WHERE `"+column+"` = "+value+" " +
-					"LIMIT 1";
-
+					"WHERE `"+column+"` = "+value+" ";
 		} else {
 			query = "DELETE FROM `"+table+"` " +
-					"WHERE `"+column+"` = '"+value+"' " +
-					"LIMIT 1";
+					"WHERE `"+column+"` = '"+value+"' ";
+		}
+		if (databaseType != SQLDatabaseType.SQLITE){
+			query = query + "LIMIT 1";
 		}
 		return query;
 	}

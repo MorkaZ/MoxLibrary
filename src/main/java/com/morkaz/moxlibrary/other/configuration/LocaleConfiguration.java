@@ -17,15 +17,15 @@ public class LocaleConfiguration extends SimpleConfiguration {
 
 	private File messagesFile;
 	private Plugin plugin;
-	private String defaultLocale, configLocaleLocation, localeConfigName;
+	private String defaultLocale, configLocaleKeyLocation, localeConfigName;
 	private YamlConfiguration messagesConfig, sourceMessagesConfig;
 
-	public LocaleConfiguration(Plugin plugin, String localeConfigName, String defaultLocaleShort, String configLocaleLocation) {
+	public LocaleConfiguration(Plugin plugin, String localeConfigName, String defaultLocaleShort, String configLocaleKeyLocation) {
 		super(plugin);
 		this.plugin = plugin;
 		this.localeConfigName = localeConfigName;
 		this.defaultLocale = defaultLocaleShort;
-		this.configLocaleLocation = configLocaleLocation;
+		this.configLocaleKeyLocation = configLocaleKeyLocation;
 		//Load default source messages configuration
 		this.sourceMessagesConfig = new YamlConfiguration();
 		try {
@@ -55,7 +55,7 @@ public class LocaleConfiguration extends SimpleConfiguration {
 
 	private void processMessagesFile() {
 		String fileName = this.localeConfigName+"-"+this.defaultLocale+".yml";
-		String locale = (getConfig().getString(this.configLocaleLocation)+"").toLowerCase();
+		String locale = (getConfig().getString(this.configLocaleKeyLocation)+"").toLowerCase();
 		if (locale.equals("") || locale.equals("null")){
 			locale = this.defaultLocale;
 		}

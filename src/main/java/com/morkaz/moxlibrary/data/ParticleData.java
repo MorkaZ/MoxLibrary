@@ -234,4 +234,12 @@ public class ParticleData {
 		return false;
 	}
 
+	public void spawn(){
+		location.getWorld().spawnParticle(this.particle, this.location, this.count, this.offsetX, this.offsetY, this.offsetZ, this.extra, this.particleData);
+	}
+
+	public void spawn(Location location){
+		location.getWorld().spawnParticle(this.particle, location, this.count, this.offsetX, this.offsetY, this.offsetZ, this.extra, this.particleData);
+	}
+
 }
