@@ -7,7 +7,11 @@ public class Argument {
 
 	public Argument(String argumentName, String givenArgument, boolean required){
 		this.argumentName = argumentName;
-		this.givenArgument = givenArgument;
+		if (givenArgument == null || givenArgument.equals("")){
+			this.givenArgument = "?";
+		} else {
+			this.givenArgument = givenArgument;
+		}
 		this.required = required;
 	}
 
