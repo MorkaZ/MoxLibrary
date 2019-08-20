@@ -36,4 +36,17 @@ public class CommandUsageBuilder {
 		arguments.add(argument);
 	}
 
+	public String build(){
+		String commandUsage = "&9/"+command+" ";
+		for (Argument argument : arguments){
+			if (!argument.isRequired()){
+				commandUsage = commandUsage + "&8[&7"+argument.getArgumentName()+"&5{&d"+argument.getGivenArgument()+"&5}&8] ";
+			} else {
+				commandUsage = commandUsage + "&3<&b"+argument.getArgumentName()+"&5{&d"+argument.getGivenArgument()+"&5}&3> ";
+			}
+		}
+		commandUsage = commandUsage.substring(0, commandUsage.length()-1); // Remove space at the end
+		return commandUsage;
+	}
+
 }
