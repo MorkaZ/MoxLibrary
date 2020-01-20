@@ -55,7 +55,7 @@ public class ToolBox {
 				seconds = seconds + (number * 60);
 			} else if (part.substring(part.length()).equals("s")){
 				Integer number = Integer.valueOf(part.substring(part.length()-1));
-				seconds = seconds + (number * 60);
+				seconds = seconds + number;
 			}
 		}
 		return seconds;
