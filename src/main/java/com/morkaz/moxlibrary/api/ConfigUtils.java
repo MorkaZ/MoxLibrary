@@ -9,7 +9,6 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.craftbukkit.libs.jline.internal.Nullable;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
@@ -104,7 +103,6 @@ public class ConfigUtils {
 		return sourceConfig;
 	}
 
-	@Nullable
 	public static SoundData loadSoundData(FileConfiguration config, String contentPrefix, Plugin plugin){
 		String soundName = config.getString(contentPrefix+".name");
 		Double pitch = config.getDouble(contentPrefix+".pitch");
@@ -140,7 +138,6 @@ public class ConfigUtils {
 	 * @param contentPrefix Location in yaml where is located ItemStack data to load,
 	 *                         for example: "path.mysuperitem". Do not place dot at the end!
 	 */
-	@Nullable
 	public static ItemStack loadItemStack(FileConfiguration config, String contentPrefix, Plugin plugin){
 		// ItemStack
 		String materialTxt = (config.getString(contentPrefix + ".material")+"").toUpperCase();
@@ -183,8 +180,12 @@ public class ConfigUtils {
 			}
 			Color color = loadColor(config, contentPrefix + ".potion-data.color", Color.fromBGR(50, 50, 200), plugin);
 			itemStack = ItemUtils.setPotionColor(itemStack, color);
+		} else if (itemStack.getType().equals(Material.PLAYER_HEAD)){
+			String value = config.getString(contentPrefix + ".head-texture");
+			if (value != null){
+				itemStack = ItemUtils.setHeadTexture(itemStack, value);
+			}
 		}
-		// TODO ifHead
 		// Enchants
 		List<String> rawEnchants = config.getStringList(contentPrefix + ".enchants");
 		Map<Enchantment, Integer> enchants;

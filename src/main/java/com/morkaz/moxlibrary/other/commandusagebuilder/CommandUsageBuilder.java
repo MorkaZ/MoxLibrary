@@ -1,5 +1,6 @@
 package com.morkaz.moxlibrary.other.commandusagebuilder;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CommandUsageBuilder {
@@ -9,11 +10,15 @@ public class CommandUsageBuilder {
 
 	public CommandUsageBuilder(String command){
 		this.command = command;
+		arguments = new ArrayList<>();
 	}
 
 	public CommandUsageBuilder(String command, List<Argument> arguments){
 		this.command = command;
 		this.arguments = arguments;
+		if (this.arguments == null){
+			this.arguments = new ArrayList<>();
+		}
 	}
 
 	public String getCommand() {

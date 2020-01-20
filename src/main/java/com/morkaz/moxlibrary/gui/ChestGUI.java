@@ -44,7 +44,8 @@ public class ChestGUI {
 	private Plugin plugin;
 	private Inventory inventory;
 	private Boolean unregisterOnClose;
-	//          Slot     ActionItem
+	private Boolean singlePlayer = true;
+	//         Slot     ActionItem
 	public Map<Integer, ActionItem> actionItemMap = new HashMap<>();
 
 	public ChestGUI(Plugin plugin, Integer size, String title, Boolean unregisterOnClose) {
@@ -57,6 +58,14 @@ public class ChestGUI {
 		if (guiListener == null){
 			guiListener = new GUIListener(plugin);
 		}
+	}
+
+	public Boolean isForSinglePlayer() {
+		return singlePlayer;
+	}
+
+	public void setSinglePlayerOption(Boolean singlePlayer) {
+		this.singlePlayer = singlePlayer;
 	}
 
 	public Boolean getUnregisterOnClose() {

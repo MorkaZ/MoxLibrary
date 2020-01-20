@@ -7,7 +7,6 @@ import com.morkaz.moxlibrary.database.sql.SQLDatabaseType;
 import com.morkaz.moxlibrary.database.sql.SQLScheduler;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.libs.jline.internal.Nullable;
 import org.bukkit.plugin.Plugin;
 
 import java.sql.*;
@@ -60,7 +59,6 @@ public class SQLiteDatabase extends SQLScheduler implements SQLDatabase {
 		return false;
 	}
 
-	@Nullable
 	@Override
 	public ResultSet getResult(String query) {
 		ResultSet set = null;
@@ -103,7 +101,7 @@ public class SQLiteDatabase extends SQLScheduler implements SQLDatabase {
 	}
 
 
-	@Override @Nullable
+	@Override
 	public Connection getConnection() {
 		try {
 			if (this.connection != null && !this.connection.isClosed()){

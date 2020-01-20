@@ -1,12 +1,14 @@
 package com.morkaz.moxlibrary.api;
 
 import com.morkaz.moxlibrary.data.CommandData;
-import net.minecraft.server.v1_13_R2.*;
+import net.minecraft.server.v1_15_R1.IChatBaseComponent;
+import net.minecraft.server.v1_15_R1.PacketPlayOutPlayerListHeaderFooter;
+import net.minecraft.server.v1_15_R1.PlayerConnection;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.*;
-import org.bukkit.craftbukkit.v1_13_R2.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.SimplePluginManager;
@@ -15,7 +17,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -111,7 +112,7 @@ public class ServerUtils {
 		connection.sendPacket(packet);
 	}
     
-    public static void sendMessage(ArrayList<Player> receivers, String prefix, String playerPlaceholder, String message) {
+    public static void sendMessage(List<Player> receivers, String prefix, String playerPlaceholder, String message) {
     	message = ChatColor.translateAlternateColorCodes('&', prefix+message.replace("%player%", playerPlaceholder));
     	for (Player receiver : receivers) {
     		receiver.sendMessage(message);
@@ -128,7 +129,7 @@ public class ServerUtils {
     	receiver.sendMessage(message);
     }
     
-    public static void sendMessage(ArrayList<Player> receivers, String prefix, String message) {
+    public static void sendMessage(List<Player> receivers, String prefix, String message) {
     	final String messageFinal = ChatColor.translateAlternateColorCodes('&', prefix+message);
     	receivers.forEach((receiver) -> {
     		receiver.sendMessage(messageFinal);
@@ -140,7 +141,7 @@ public class ServerUtils {
     	receiver.sendMessage(message);
     }
     
-    public static void sendMessage(ArrayList<Player> receivers, String message) {
+    public static void sendMessage(List<Player> receivers, String message) {
     	final String messageFinal = ChatColor.translateAlternateColorCodes('&', message);
     	receivers.forEach((receiver) -> {
     		receiver.sendMessage(messageFinal);
