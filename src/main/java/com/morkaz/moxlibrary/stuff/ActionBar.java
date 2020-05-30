@@ -1,11 +1,9 @@
 package com.morkaz.moxlibrary.stuff;
 
-import net.minecraft.server.v1_15_R1.ChatMessageType;
-import net.minecraft.server.v1_15_R1.IChatBaseComponent;
-import net.minecraft.server.v1_15_R1.PacketPlayOutChat;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -19,20 +17,18 @@ public class ActionBar {
 	}
 	
 	public void send(Player player) {
-		player.spigot().sendMessage();
+		player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(text));
 	}
 	
 	public void send(List<Player> players) {
-		PacketPlayOutChat packet = new PacketPlayOutChat(IChatBaseComponent.ChatSerializer.a("{\"text\":\"" + text.replace("\"", "") + "\"}"), ChatMessageType.GAME_INFO);
 		for (Player player : players) {
-			((CraftPlayer)player).getHandle().playerConnection.sendPacket(packet);
+			player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(text));
 		}
 	}
 	
 	public void sendToAll() {
-		PacketPlayOutChat packet = new PacketPlayOutChat(IChatBaseComponent.ChatSerializer.a("{\"text\":\"" + text.replace("\"", "") + "\"}"), ChatMessageType.GAME_INFO);
 		for (Player player : Bukkit.getOnlinePlayers()) {
-			((CraftPlayer)player).getHandle().playerConnection.sendPacket(packet);
+			player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(text));
 		}
 	}
 
@@ -43,7 +39,5 @@ public class ActionBar {
 	public void setText(String text) {
 		this.text = text;
 	}
-	
-	
-	
+
 }

@@ -1,8 +1,11 @@
 package com.morkaz.moxlibrary.api;
 
+import com.morkaz.moxlibrary.data.MoxEnchantStorage;
 import com.morkaz.moxlibrary.data.ParticleData;
 import com.morkaz.moxlibrary.data.SoundData;
+import com.morkaz.moxlibrary.data.enums.EnchantmentCategory;
 import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.*;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.configuration.ConfigurationSection;
@@ -11,6 +14,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffectType;
 
@@ -72,11 +76,9 @@ public class ConfigUtils {
 		FileConfiguration config = new YamlConfiguration();
 		String fileName = configFileName+(configFileName.contains(".yml") ? "" : ".yml");
 		File configFile = new File(plugin.getDataFolder(), fileName);
-		Boolean bool = false;
 		if (!configFile.exists()) {
 			configFile.getParentFile().mkdirs();
 			plugin.saveResource(fileName, false);
-			bool = true;
 		}
 		try {
 			config.load(configFile);
@@ -146,7 +148,7 @@ public class ConfigUtils {
 		Integer data = config.getInt(contentPrefix + ".data");
 		String itemName = config.getString(contentPrefix + ".name");
 		String itemLore;
-		if (config.getStringList(contentPrefix + ".lore").size() > 1){
+		if (config.getStringList(contentPrefix + ".lore").size() > 0){
 			itemLore = String.join("||", config.getStringList(contentPrefix + ".lore"));
 		} else {
 			itemLore = config.getString(contentPrefix + ".lore");
@@ -167,7 +169,7 @@ public class ConfigUtils {
 		if (data == null){
 			data = 0;
 		}
-		if (amount == null){
+		if (amount == null || amount == 0){
 			amount = 1;
 		}
 		itemStack = ItemUtils.createItemStack(material, amount, data, itemName, itemLore, glow);
@@ -188,10 +190,27 @@ public class ConfigUtils {
 		}
 		// Enchants
 		List<String> rawEnchants = config.getStringList(contentPrefix + ".enchants");
-		Map<Enchantment, Integer> enchants;
-		enchants = transformConfigEnchants(rawEnchants, plugin);
-		for (Map.Entry<Enchantment, Integer> entry : enchants.entrySet()) {
-			itemStack.addUnsafeEnchantment(entry.getKey(), entry.getValue());
+		Map<MoxEnchantStorage, Integer> enchants;
+		enchants = transformConfigEnchants(itemStack, rawEnchants, plugin);
+		if (itemStack.getType() != Material.ENCHANTED_BOOK){
+			for (Map.Entry<MoxEnchantStorage, Integer> entry : enchants.entrySet()) {
+				if (entry.getKey().isRandom()){
+					if (entry.getKey().getGenerateSelfAfter()){
+						itemStack = entry.getKey().scheduleEnchantmentsToGenerate(itemStack);
+					} else {
+						Pair<Enchantment, Integer> generatedEnchant = entry.getKey().generateEnchantment();
+						itemStack.addUnsafeEnchantment(generatedEnchant.getLeft(), generatedEnchant.getRight());
+					}
+				} else {
+					itemStack.addUnsafeEnchantment(entry.getKey().getEnchantment(), entry.getValue());
+				}
+			}
+		} else {
+			EnchantmentStorageMeta bookMeta = (EnchantmentStorageMeta)itemStack.getItemMeta();
+			for (Map.Entry<MoxEnchantStorage, Integer> entry : enchants.entrySet()) {
+				bookMeta.addStoredEnchant(entry.getKey().getEnchantment(), entry.getValue(), true);
+			}
+			itemStack.setItemMeta(bookMeta);
 		}
 		return itemStack;
 	}
@@ -285,34 +304,88 @@ public class ConfigUtils {
 	 * This method transfers String enchantments that are in format "ENCHANTMENT N",
 	 * for example "FIRE_ASPECT 1" to normal enchantments with level.
 	 * Plugin parameter is needed to find in which plugin there is mistake. It can save a lot of time.
+	 * You can use random enchants. Just type RANDOM_*CATEGORY* *min*-*max* *true/false to schedule load* *safe/unsafe*
+	 * For example: - "RANDOM_SWORD 1-3 true safe"
 	 */
-	public static Map<Enchantment, Integer> transformConfigEnchants(List<String> enchantList, Plugin plugin){
-		Map<Enchantment, Integer> enchants = new HashMap<Enchantment, Integer>();
+	public static Map<MoxEnchantStorage, Integer> transformConfigEnchants(ItemStack itemStack, List<String> enchantList, Plugin plugin){
+		Map<MoxEnchantStorage, Integer> enchants = new HashMap<>();
 		for (String stringEnchant : enchantList) {
 			String[] splitEnchant = stringEnchant.split(" ");
-			if (splitEnchant.length != 2) {
-				Bukkit.getLogger().warning("[MoxLibrary] Error while loading enchantment at " + stringEnchant + ". " +
-						"There is no space, no enchant number or more/less than 2 values (enchantment <number>). " +
-						"Caused by plugin: " + plugin.getName() + ". ");
-				continue;
-			}
-			Integer enchantLevel = Integer.valueOf(splitEnchant[1]);
 			String enchantName = splitEnchant[0].toUpperCase();
-			if (enchantLevel == null || enchantLevel <= 0) {
-				Bukkit.getLogger().warning("[MoxLibrary] Error while loading enchantment " + stringEnchant + ". " +
-						"There is problem with loading enchantment level of " + enchantName + ". " +
-						"Caused by plugin: " + plugin.getName() + ". ");
-				continue;
+			if (enchantName.startsWith("RANDOM")){
+				EnchantmentCategory category = null;
+				Integer min = 0, max = 0;
+				Boolean genreateLater = false;
+				Boolean containsCategory = false;
+				Boolean safeEnchants = true;
+				if (enchantName.contains("_")){
+					containsCategory = true;
+				}
+				// Category
+				String randomCategoryName = splitEnchant[0];
+				if (containsCategory){
+					String[] splitWhiteSpace = randomCategoryName.split("_");
+					randomCategoryName = splitWhiteSpace[1];
+					if (!ToolBox.enumContains(EnchantmentCategory.class, randomCategoryName.toUpperCase())){
+						Bukkit.getLogger().warning("[MoxLibrary] Error while loading enchantment " + stringEnchant + ". " +
+								"There is problem with loading enchantment category of " + enchantName + ". " +
+								"Caused by plugin: " + plugin.getName() + ". ");
+						continue;
+					}
+					category = EnchantmentCategory.valueOf(randomCategoryName.toUpperCase());
+				} else {
+					category = EnchantmentCategory.getByItemStack(itemStack);
+				}
+				// min & max
+				if (splitEnchant.length > 1){
+					if (splitEnchant[1].contains("-")){
+						String[] splitGetMinMax = splitEnchant[1].split("-");
+						min = Integer.valueOf(splitGetMinMax[0]);
+						max = Integer.valueOf(splitGetMinMax[1]);
+						if (splitGetMinMax.length > 2){
+							genreateLater = Boolean.valueOf(splitGetMinMax[2]);
+						}
+					} else {
+						min = Integer.valueOf(splitEnchant[1]);
+						max = min;
+					}
+				}
+				// Randomize by plugin self later (will be added as NBT, use ItemUtils.generateScheduledEnchantments(..) to randomize.
+				if (splitEnchant.length > 2){
+					genreateLater = Boolean.valueOf(splitEnchant[2]);
+				}
+				// Safe/unsafe random enchantments? For example if it will be 1-5, it will roll 4 and it will get random enchant which max level is 3 then it will have max level 3
+				if (splitEnchant.length > 3){
+					if (splitEnchant[3].equalsIgnoreCase("unsafe")){
+						safeEnchants = false;
+					}
+				}
+				MoxEnchantStorage moxEnchantStorage = new MoxEnchantStorage(category, min, max, genreateLater, safeEnchants);
+				enchants.put(moxEnchantStorage, 0);
+			} else {
+				if (splitEnchant.length != 2) {
+					Bukkit.getLogger().warning("[MoxLibrary] Error while loading enchantment at " + stringEnchant + ". " +
+							"There is no space, no enchant number or more/less than 2 values (enchantment <number>). " +
+							"Caused by plugin: " + plugin.getName() + ". ");
+					continue;
+				}
+				Enchantment enchant = Enchantment.getByName(enchantName);
+				if (enchant == null) {
+					Bukkit.getLogger().warning("[MoxLibrary] Error while loading enchantment " + stringEnchant + ". " +
+							"Enchant name not found! (" + enchantName + "). " +
+							"Please use bukkit enum names! Google: Enchantments bukkit. " +
+							"Caused by plugin: " + plugin.getName() + ". ");
+					continue;
+				}
+				Integer enchantLevel = Integer.valueOf(splitEnchant[1]);
+				if (enchantLevel == null || enchantLevel <= 0) {
+					Bukkit.getLogger().warning("[MoxLibrary] Error while loading enchantment " + stringEnchant + ". " +
+							"There is problem with loading enchantment level of " + enchantName + ". " +
+							"Caused by plugin: " + plugin.getName() + ". ");
+					continue;
+				}
+				enchants.put(new MoxEnchantStorage(enchant), enchantLevel);
 			}
-			Enchantment enchant = Enchantment.getByName(enchantName);
-			if (enchant == null) {
-				Bukkit.getLogger().warning("[MoxLibrary] Error while loading enchantment " + stringEnchant + ". " +
-						"Enchant name not found! (" + enchantName + "). " +
-						"Please use bukkit enum names! Google: Enchantments bukkit. " +
-						"Caused by plugin: " + plugin.getName() + ". ");
-				continue;
-			}
-			enchants.put(enchant, enchantLevel);
 		}
 		return enchants;
 	}

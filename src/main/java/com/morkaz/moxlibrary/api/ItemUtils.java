@@ -2,30 +2,32 @@ package com.morkaz.moxlibrary.api;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
-import de.tr7zw.itemnbtapi.NBTItem;
-import net.minecraft.server.v1_15_R1.NBTTagCompound;
-import net.minecraft.server.v1_15_R1.NBTTagList;
+import com.morkaz.moxlibrary.data.MoxEnchantStorage;
+import com.morkaz.moxlibrary.data.enums.EnchantmentCategory;
+import com.morkaz.moxlibrary.tr7zw.nbtapi.NBTItem;
+import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.io.BukkitObjectInputStream;
+import org.bukkit.util.io.BukkitObjectOutputStream;
 
 import javax.annotation.Nullable;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.UUID;
+import java.util.*;
 
 
 public class ItemUtils {
-
-
-
 
 	// -------------------
 	// MISC
@@ -118,17 +120,8 @@ public class ItemUtils {
 	// -------------------
 
 	public static ItemStack addGlow(ItemStack itemStack){
-		net.minecraft.server.v1_15_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(itemStack);
-		NBTTagCompound tag = null;
-		if (!nmsStack.hasTag()) {
-			tag = new NBTTagCompound();
-			nmsStack.setTag(tag);
-		}
-		if (tag == null) tag = nmsStack.getTag();
-		NBTTagList ench = new NBTTagList();
-		tag.set("ench", ench);
-		nmsStack.setTag(tag);
-		return CraftItemStack.asCraftMirror(nmsStack);
+		// TODO for all versions
+		return itemStack;
 	}
 
 	public static NBTItem getNBTItem(ItemStack itemStack){
@@ -159,11 +152,102 @@ public class ItemUtils {
 		return nbtItem.getObject(tagKey, type);
 	}
 
+	public static ItemStack removeCustomTag(ItemStack itemStack, String tagKey){
+		NBTItem nbtItem = getNBTItem(itemStack);
+		nbtItem.removeKey(tagKey);
+		return nbtItem.getItem();
+	}
+
 
 
 	// -------------------
 	// ITEM META
 	// -------------------
+
+	public static ItemStack applyScheduledRandomEnchantments(ItemStack itemStack){
+		List<Pair<Enchantment, Integer>> enchants = generateScheduledRandomEnchantments(itemStack);
+		for (Pair<Enchantment, Integer> pair : enchants){
+			itemStack.addUnsafeEnchantment(pair.getLeft(), pair.getRight());
+		}
+		itemStack = ItemUtils.removeCustomTag(itemStack, "moxrandomenchants");
+		return itemStack;
+	}
+
+	public static List<Pair<Enchantment, Integer>> generateScheduledRandomEnchantments(ItemStack itemStack){
+		String textRandom = deserializeRandomEnchantments(itemStack);
+		if (textRandom == null || textRandom.equals("")){
+			return null;
+		}
+		String[] split = textRandom.split("\\|\\|");
+		List<MoxEnchantStorage> enchantStorages = new ArrayList<>();
+		for (String dataLine : split){
+			String[] splitedDataLine = dataLine.split(",");
+			EnchantmentCategory category = EnchantmentCategory.valueOf(splitedDataLine[0]);
+			Integer min = Integer.valueOf(splitedDataLine[1]);
+			Integer max = Integer.valueOf(splitedDataLine[2]);
+			Boolean safeMaxEnchants = Boolean.valueOf(splitedDataLine[3]);
+			enchantStorages.add(new MoxEnchantStorage(category, min, max, safeMaxEnchants));
+		}
+		List<Pair<Enchantment, Integer>> enchantmentsList = new ArrayList<>();
+		for (MoxEnchantStorage enchantStorage : enchantStorages){
+			enchantmentsList.add(enchantStorage.generateEnchantment());
+		}
+		return enchantmentsList;
+	}
+
+	public static String serializeRandomEnchantments(ItemStack itemStack, EnchantmentCategory enchantmentCategory, Integer minRandom, Integer maxRandom, Boolean safeMaxEnchants){
+		String savedRandomEnchants = deserializeRandomEnchantments(itemStack);
+		if (savedRandomEnchants == null){
+			return null;
+		}
+		if (savedRandomEnchants.equals("")){
+			savedRandomEnchants =  enchantmentCategory.toString() +","+ minRandom.toString()+","+maxRandom.toString()+","+safeMaxEnchants.toString();
+		} else {
+			savedRandomEnchants = savedRandomEnchants + "||" + enchantmentCategory.toString() +","+ minRandom.toString()+","+maxRandom.toString()+","+safeMaxEnchants.toString();
+		}
+		ByteArrayOutputStream str = new ByteArrayOutputStream();
+		try {
+			BukkitObjectOutputStream data = new BukkitObjectOutputStream(str);
+			data.writeObject(savedRandomEnchants);
+			String encodedString = Base64.getEncoder().encodeToString(str.toByteArray());
+			data.close();
+			return encodedString;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public static String deserializeRandomEnchantments(ItemStack itemStack){
+		String nbt = ItemUtils.getCustomTag(itemStack, "moxrandomenchants");
+		if (nbt == null || nbt.equals("")){
+			return "";
+		}
+		ByteArrayInputStream stream = new ByteArrayInputStream(Base64.getDecoder().decode(nbt));
+		try {
+			BukkitObjectInputStream data = new BukkitObjectInputStream(stream);
+			String savedRandomEnchants = data.readObject().toString();
+			data.close();
+			return savedRandomEnchants;
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public static ItemStack replaceInLore(ItemStack itemStack, String target, String replacement){
+		ItemMeta itemMeta = itemStack.getItemMeta();
+		List<String> lore = itemMeta.getLore();
+		List<String> newLore = new ArrayList<>();
+		for (String loreLine : lore){
+			newLore.add(loreLine.replace(target, replacement));
+		}
+		itemMeta.setLore(newLore);
+		itemStack.setItemMeta(itemMeta);
+		return itemStack;
+	}
 
 	public static ItemStack setItemName(ItemStack itemStack, String itemName){
 		ItemMeta itemMeta = itemStack.getItemMeta();

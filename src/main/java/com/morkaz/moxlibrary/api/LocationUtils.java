@@ -1,6 +1,8 @@
 package com.morkaz.moxlibrary.api;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
@@ -9,6 +11,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LocationUtils {
+
+	static public String getStringFromLocation(final Location location) {
+		if (location == null) {
+			return "";
+		}
+		return location.getWorld().getName() + ":" + location.getBlockX() + ":" + location.getBlockY() + ":" + location.getBlockZ();
+	}
+
+	public static Location getLocationFromString(final String locationString) {
+		if (locationString == null || locationString.trim() == "") {
+			return null;
+		}
+		final String[] parts = locationString.split(":");
+		if (parts.length == 4) {
+			final World w = Bukkit.getServer().getWorld(parts[0]);
+			final int x = Integer.parseInt(parts[1]);
+			final int y = Integer.parseInt(parts[2]);
+			final int z = Integer.parseInt(parts[3]);
+			Location location = new Location(w, x, y, z);
+			return location;
+		}
+		return null;
+	}
 
 	public static List<Location> getSphere(Location center, Integer radius) {
 		List<Location> sphereLocations = new ArrayList<Location>();

@@ -1,14 +1,13 @@
 package com.morkaz.moxlibrary.api;
 
 import com.morkaz.moxlibrary.data.CommandData;
-import net.minecraft.server.v1_15_R1.IChatBaseComponent;
-import net.minecraft.server.v1_15_R1.PacketPlayOutPlayerListHeaderFooter;
-import net.minecraft.server.v1_15_R1.PlayerConnection;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.command.*;
-import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandMap;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.SimplePluginManager;
@@ -81,35 +80,11 @@ public class ServerUtils {
 	}
 
 	public static void setTablistFooter(Player player, String footer){
-		CraftPlayer cplayer = (CraftPlayer) player;
-		PlayerConnection connection = cplayer.getHandle().playerConnection;
-		IChatBaseComponent bottom = IChatBaseComponent.ChatSerializer.a("{text: '"+footer+"'}");
-		PacketPlayOutPlayerListHeaderFooter packet = new PacketPlayOutPlayerListHeaderFooter();
-		try {
-			Field headerField = packet.getClass().getDeclaredField("b");
-			headerField.setAccessible(true);
-			headerField.set(packet, bottom);
-			headerField.setAccessible(!headerField.isAccessible());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		connection.sendPacket(packet);
+		player.setPlayerListFooter(ChatColor.translateAlternateColorCodes('&', footer));
 	}
 
 	public static void setTablistHeader(Player player, String header){
-		CraftPlayer cplayer = (CraftPlayer) player;
-		PlayerConnection connection = cplayer.getHandle().playerConnection;
-		IChatBaseComponent top = IChatBaseComponent.ChatSerializer.a("{text: '"+header+"'}");
-		PacketPlayOutPlayerListHeaderFooter packet = new PacketPlayOutPlayerListHeaderFooter();
-		try {
-			Field headerField = packet.getClass().getDeclaredField("a");
-			headerField.setAccessible(true);
-			headerField.set(packet, top);
-			headerField.setAccessible(!headerField.isAccessible());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		connection.sendPacket(packet);
+		player.setPlayerListHeader(ChatColor.translateAlternateColorCodes('&', header));
 	}
     
     public static void sendMessage(List<Player> receivers, String prefix, String playerPlaceholder, String message) {

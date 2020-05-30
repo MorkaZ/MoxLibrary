@@ -65,6 +65,21 @@ public class ToolBox {
 		return obj;
 	}
 
+	public static <C> List<C> mergeLists(List<C>... lists){
+		List<C> returnList = new ArrayList<>();
+		for (List<C> list : lists){
+			returnList.addAll(list);
+		}
+		return returnList;
+	}
+
+	public static <C> List<C> removeFromList(List<C> list, C... objects){
+		for (C object : objects){
+			list.remove(object);
+		}
+		return list;
+	}
+
 	public static <E extends Enum<E>> Boolean enumContains(Class<E> clazz, String valueString){
 		E[] enumValues = clazz.getEnumConstants();
 		List<String> enumStringValuesList = toStringList(enumValues);
